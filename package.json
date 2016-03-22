@@ -30,6 +30,6 @@
     "mocha": "^2.4.5"
   },
   "dependencies": {
-    "jsdom": "^8.1.0"
+    "domino": "^1.0.23"
   }
 }

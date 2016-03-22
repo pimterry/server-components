@@ -1,6 +1,6 @@
 "use strict";
 
-var jsdom = require("jsdom");
+var domino = require("domino");
 
 exports.newElement = function newElement() {
     return {};
@@ -20,16 +20,9 @@ function recurseTree(rootNode, callback) {
 }
 
 exports.render = function render (input) {
-    var doc = jsdom.jsdom(input, {
-        features: {
-            FetchExternalResources: false,
-            ProcessExternalResources: false
-        }
-    });
+    var doc = domino.createDocument(input);
 
-    var window = doc.defaultView;
-
-    recurseTree(window.document, (node) => {
+    recurseTree(doc, (node) => {
         if (node.tagName) {
             var nodeType = node.tagName.toLowerCase();
             var customElement = registeredElements[nodeType];
@@ -37,5 +30,5 @@ exports.render = function render (input) {
         }
     });
 
-    return jsdom.serializeDocument(doc);
+    return doc.documentElement.outerHTML;
 };
