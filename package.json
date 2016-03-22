@@ -26,6 +26,10 @@
   },
   "homepage": "https://github.com/pimterry/server-components#readme",
   "devDependencies": {
+    "chai": "^3.5.0",
     "mocha": "^2.4.5"
+  },
+  "dependencies": {
+    "jsdom": "^8.1.0"
   }
 }
