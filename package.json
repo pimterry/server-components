@@ -1,0 +1,30 @@
+{
+  "name": "server-components",
+  "version": "0.1.0",
+  "description": "An ultra-dumb component framework for server-side rendering, inspired by web components",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pimterry/server-components.git"
+  },
+  "keywords": [
+    "webcomponents",
+    "web-components",
+    "templating",
+    "rendering",
+    "server",
+    "server-side"
+  ],
+  "author": "Tim Perry",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pimterry/server-components/issues"
+  },
+  "homepage": "https://github.com/pimterry/server-components#readme",
+  "devDependencies": {
+    "mocha": "^2.4.5"
+  }
+}
