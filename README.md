@@ -9,14 +9,22 @@ This is a proof of concept right now, to look at using web components for struct
 Web components are a way of composing isolated logic components of UI together. This is useful on the client-side, but is equally
 relevant on the server, where we often want to compose views together too.
 
-Existing templating languages focus mostly on how data is bound to individual elements on the page. Support for composition
-typically works only at a string level, inserting blocks of strings on demand, without meaningful structure. You can see
-this in Jade's [mixins](http://jade-lang.com/reference/mixins/) & [includes](http://jade-lang.com/reference/includes/)),
-Mustache's [partials](https://mustache.github.io/mustache.5.html#Partials).
+Existing templating languages focus mostly on how data is bound to individual elements on the page, and composing together
+elements is something of an after thought. See Mustache's [partials](https://mustache.github.io/mustache.5.html#Partials),
+for example, which provide no isolation, and no ability to parameterize their use whatsoever. Some much larger libraries like
+Jade include features like [mixins](http://jade-lang.com/reference/mixins/), which get closer (allowing you to pass string
+arguments, and a single block of HTML to wrap), but these mixins can't include substantial logic, or introspect the content
+they're given, as web components can on the front-end (a powerful tool; see the motivating example in 'Usage' below).
 
-Some tools do support this, but only with very heavy-weight approaches, and almost entirely only on the client-side. That's great
-if you're building a big single page app, but if you want an simple light-weight works-without-javascript easily-accessible
-fast approach, you need to be rendering server-side.
+Fundamentally these limitations exist because templating libraries typically work purely on flat strings, throwing away
+the structure and semantics of what they're given.
+
+Some tools do do this somewhat better, but only with more heavy-weight approaches, almost entirely only on the client-side,
+and diverging substantially from the existing custom elements standard for this. That's all great if you want a single big
+framework in which to build your huge single page app, but if you want an simple light-weight works-without-javascript
+easily-accessible fast approach, you need a small standalone tool to render your page server-side. You don't need a whole
+front-end UI framework, with all the page weight and complexity that brings, just to be able to easily compose together
+a page of widgets.
 
 Server Components is solving this: it's a minimal tool to compose together your application UI on the server side.
 
@@ -72,32 +80,36 @@ Larger motivating example:
 
 ```javascript
 <html>
+<head>
+
+<social-media-tags name="My Page" image="./social-media-image" ></social-media-tags>
+
+</head>
 <body>
-<section>
-    <item-feed id="major-content">
-        <manual-source icon="./blog-icon"    source="blog-posts" />
-        <manual-source icon="./talk-icon"    source="talks-given" />
-        <manual-source icon="./project-icon" source="project-events" />
-    </item-feed>
-</section>
 
-<section>
-    <item-feed id="minor-events">
-        <twitter-source />
-        <github-source include="PullRequest" />
-    </item-feed>
-</section>
+<google-map latitude="41.390205" longitude="2.154007"></google-map>
 
-<section>
-    <item-carousel>
-        <slidedeck-source    icon="./slides-icon" format="image" />
-        <manual-image-source icon="./slides-icon" source="slidesets" />
-    </item-carousel>
-    <item-carousel>
-        <manual-image-source icon="./video-icon" source="talk-videos" />
-        <manual-image-source icon="./photo-icon" source="talk-photos" />
-    </item-carousel>
-</section>
+<item-feed id="major-content">
+    <manual-source icon="./blog-icon"    source="blog-posts" />
+    <manual-source icon="./talk-icon"    source="talks-given" />
+    <manual-source icon="./project-icon" source="project-events" />
+</item-feed>
+
+<item-feed id="minor-events">
+    <twitter-source />
+    <github-source include="PullRequest" />
+</item-feed>
+
+<item-carousel>
+    <slidedeck-source    icon="./slides-icon" format="image" />
+    <manual-image-source icon="./slides-icon" source="slidesets" />
+</item-carousel>
+
+<item-carousel>
+    <manual-image-source icon="./video-icon" source="talk-videos" />
+    <manual-image-source icon="./photo-icon" source="talk-photos" />
+</item-carousel>
+
 </body>
 </html>
 ```
@@ -108,6 +120,7 @@ Larger motivating example:
 - [x] Render components, triggering the createdCallback and allowing component transformation
 - [ ] Trigger attachedCallbacks
 - [ ] Allow attribute access
+- [ ] Allow associating behaviour with component nodes
 - [ ] Allow rendering of document fragments (not just whole documents)
 - [ ] Only allow components with '-' in the name (as on the front-end)
 - [ ] Document differences with real web components
