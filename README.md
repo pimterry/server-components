@@ -35,7 +35,7 @@ This is not attempting to polyfill HTML Imports (although it potentially could a
 idea, not sure if that's important), Template tags (unnecessary; all DOM is inert server-side) or the Shadow DOM (technically
 challenging, and less useful server-side).
 
-Core DOM functionality now built on [Domino](https://github.com/fgnass/domino], so DOM manipulation comes with Domino's
+Core DOM functionality now built on [Domino](https://github.com/fgnass/domino), so DOM manipulation comes with Domino's
 limitations (no issues so far though).
 
 Full serious web-component compatible support is probably blocked on https://github.com/tmpvar/jsdom/issues/1030, and I
