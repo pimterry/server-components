@@ -4,10 +4,6 @@ An dumb simple component framework for server-side rendering, based on web compo
 
 This is a proof of concept right now, to look at using web components for structure on the server-side, not just the client-side.
 
-Going to be quite hacky, serious fully web-component compatible support is probably blocked on
-https://github.com/tmpvar/jsdom/issues/1030, and I expect JSDom performance will block quite a bit of this for any serious use
-for quite a while.
-
 ## Motivation
 
 Web components are a way of composing isolated logic components of UI together. This is useful on the client-side, but is equally
@@ -18,9 +14,11 @@ typically works only at a string level, inserting blocks of strings on demand, w
 this in Jade's [mixins](http://jade-lang.com/reference/mixins/) & [includes](http://jade-lang.com/reference/includes/)),
 Mustache's [partials](https://mustache.github.io/mustache.5.html#Partials).
 
-Some tools do support this, but only with very heavy-weight approaches, and almost entirely only on the client-side.
+Some tools do support this, but only with very heavy-weight approaches, and almost entirely only on the client-side. That's great
+if you're building a big single page app, but if you want an simple light-weight works-without-javascript easily-accessible
+fast approach, you need to be rendering server-side.
 
-Server Components is solving this: it's a minimal tool to compose together your application UI.
+Server Components is solving this: it's a minimal tool to compose together your application UI on the server side.
 
 It doesn't dynamically build templates from data (although you can easily layer a typical templating language on top to do so). It
 doesn't allow any logic in templates whatsoever. It allows you to compose together components (who in turn can contain whatever
@@ -31,9 +29,17 @@ to make this work outside a full DOM environment. In principle, this should mean
 render it client-side with no changes (but this is early stages, there's some basic string replacement needed right now,
 and generally YMMV).
 
+## Caveats
+
 This is not attempting to polyfill HTML Imports (although it potentially could as an import mechanism in future? Interesting
 idea, not sure if that's important), Template tags (unnecessary; all DOM is inert server-side) or the Shadow DOM (technically
 challenging, and less useful server-side).
+
+Core DOM functionality now built on [Domino](https://github.com/fgnass/domino], so DOM manipulation comes with Domino's
+limitations (no issues so far though).
+
+Full serious web-component compatible support is probably blocked on https://github.com/tmpvar/jsdom/issues/1030, and I
+expect JSDom performance will block using that for any serious use for quite a while. Domino perf is much better.
 
 ## Usage
 
@@ -68,29 +74,29 @@ Larger motivating example:
 <html>
 <body>
 <section>
-    <feed id="major-content">
-        <manual-source icon="./blog-icon" source="blog-posts" />
-        <manual-source icon="./talk-icon" source="talks-given" />
+    <item-feed id="major-content">
+        <manual-source icon="./blog-icon"    source="blog-posts" />
+        <manual-source icon="./talk-icon"    source="talks-given" />
         <manual-source icon="./project-icon" source="project-events" />
-    </feed>
+    </item-feed>
 </section>
 
 <section>
-    <feed id="minor-events">
+    <item-feed id="minor-events">
         <twitter-source />
         <github-source include="PullRequest" />
-    </feed>
+    </item-feed>
 </section>
 
 <section>
-    <carousel>
+    <item-carousel>
         <slidedeck-source    icon="./slides-icon" format="image" />
         <manual-image-source icon="./slides-icon" source="slidesets" />
-    </carousel>
-    <carousel>
+    </item-carousel>
+    <item-carousel>
         <manual-image-source icon="./video-icon" source="talk-videos" />
         <manual-image-source icon="./photo-icon" source="talk-photos" />
-    </carousel>
+    </item-carousel>
 </section>
 </body>
 </html>
