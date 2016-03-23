@@ -119,10 +119,12 @@ Larger motivating example:
 - [x] Allow definition of components
 - [x] Render components, triggering the createdCallback and allowing component transformation
 - [ ] Trigger attachedCallbacks
-- [ ] Allow attribute access
+- [x] Allow attribute access
+- [x] Allow asynchronous rendering
 - [ ] Allow associating behaviour with component nodes
 - [ ] Allow rendering of document fragments (not just whole documents)
 - [ ] Only allow components with '-' in the name (as on the front-end)
+- [ ] Support type extension elements
 - [ ] Document differences with real web components
 - [ ] Publish on NPM
 - [ ] Make it easy to build external easily registered custom element plugins (`serverComponents.use(require('my-element'))`?)
