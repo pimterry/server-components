@@ -3,7 +3,7 @@
 var domino = require("domino");
 
 exports.newElement = function newElement() {
-    return {};
+    return Object.create(domino.impl.HTMLElement.prototype);
 };
 
 var registeredElements = {};
@@ -29,8 +29,12 @@ exports.render = function render (input) {
             var nodeType = node.tagName.toLowerCase();
             var customElement = registeredElements[nodeType];
             if (customElement) {
-                var createdResult = customElement.createdCallback.call(node);
-                createdPromises.push(Promise.resolve(createdResult));
+                // TODO: Should probably clone node, not change prototype, for performance
+                Object.setPrototypeOf(node, customElement);
+                if (customElement.createdCallback) {
+                    var createdResult = customElement.createdCallback.call(node);
+                    createdPromises.push(Promise.resolve(createdResult));
+                }
             }
         }
     });

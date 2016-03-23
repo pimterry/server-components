@@ -86,6 +86,34 @@ describe("Server components", () => {
         });
     });
 
+    it("exposes methods on custom elements", () => {
+        var DataSource = serverComponents.newElement();
+        DataSource.data = [1, 2, 3];
+        serverComponents.registerElement("data-source", { prototype: DataSource });
+
+        var DataDisplayer = serverComponents.newElement();
+        DataDisplayer.createdCallback = function () {
+            return new Promise((resolve) => {
+                // Has to be async, as child node prototypes aren't set: http://stackoverflow.com/questions/36187227/
+                // TODO: Find a nicer way to handle this.
+                setTimeout(() => {
+                    var data = this.childNodes[0].data;
+                    this.textContent = "Data: " + JSON.stringify(data);
+                    resolve();
+                }, 0);
+            })
+        };
+        serverComponents.registerElement("data-displayer", { prototype: DataDisplayer });
+
+        return serverComponents.render(body(
+            "<data-displayer><data-source></data-source></data-displayer>"
+        )).then((output) => {
+            expect(output).to.equal(body(
+                "<data-displayer>Data: [1,2,3]</data-displayer>"
+            ));
+        });
+    });
+
     it("allows attribute access", () => {
         var BadgeElement = serverComponents.newElement();
         BadgeElement.createdCallback = function () {
