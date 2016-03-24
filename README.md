@@ -64,16 +64,16 @@ serverComponents.registerElement("my-new-element", { prototype: NewElement });
 
 // Later, render an HTML document that references that element
 
-var output = serverComponents.render(`
+serverComponents.render(`
     <html>
     <head></head>
     <body>
         <my-new-element></my-new-element>
     </body>
     </html>
-`);
-
-// Output = "<html><head></head><body><my-new-element>Hi there</my-new-element></body></html>"
+`).then((output) => {
+    // Output = "<html><head></head><body><my-new-element>Hi there</my-new-element></body></html>"
+});
 ```
 
 Larger motivating example:
