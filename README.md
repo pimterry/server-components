@@ -118,18 +118,18 @@ Larger motivating example:
 
 - [x] Allow definition of components
 - [x] Render components, triggering the createdCallback and allowing component transformation
-- [ ] Trigger attachedCallbacks
 - [x] Allow attribute access
 - [x] Allow asynchronous rendering
-- [ ] Allow associating behaviour with component nodes
-- [ ] Allow rendering of document fragments (not just whole documents)
+- [x] Allow associating behaviour with component nodes
 - [ ] Only allow components with '-' in the name (as on the front-end)
+- [ ] Publish on NPM
+- [ ] Allow programmatic component creation & trigger attachedCallbacks
+- [ ] Allow rendering of document fragments (not just whole documents)
 - [ ] Support type extension elements
 - [ ] Document differences with real web components
-- [ ] Publish on NPM
 - [ ] Make it easy to build external easily registered custom element plugins (`serverComponents.use(require('my-element'))`?)
 - [ ] Make it easy to integrate server components with a data-binding templating library (e.g. mustache)
 - [ ] Make it easy to integrate with Express as a view engine
-- [ ] Include a selection of useful components to start with
+- [ ] Write a selection of useful components to start with
 - [ ] Tests with some common example implementation of existing web components
-- [ ] Add transparent front-end support (i.e. translate back to normal web components API internally)
+- [ ] Create transparent front-end support (i.e. translate back to normal web components API internally)
