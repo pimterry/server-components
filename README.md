@@ -1,4 +1,4 @@
-# Server Components
+# Server Components [![Travis Build Status](https://img.shields.io/travis/pimterry/server-components.svg)](https://travis-ci.org/pimterry/server-components)
 
 An dumb simple component framework for server-side rendering, based on web components.
 
