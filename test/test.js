@@ -128,4 +128,24 @@ describe("Server components", () => {
             ));
         });
     });
+
+    it("throws an async error if any components fail to render synchronously", () => {
+        var FailingElement = serverComponents.newElement();
+        FailingElement.createdCallback = () => { throw new Error() };
+        serverComponents.registerElement("failing-element", { prototype: FailingElement });
+
+        return serverComponents.render(body("<failing-element></failing-element>")).then((output) => {
+            throw new Error("Should not successfully render");
+        }).catch(() => {});
+    });
+
+    it("throws an async error if any components fail to render asynchronously", () => {
+        var FailingElement = serverComponents.newElement();
+        FailingElement.createdCallback = () => { return Promise.reject(new Error()) };
+        serverComponents.registerElement("failing-element", { prototype: FailingElement });
+
+        return serverComponents.render(body("<failing-element></failing-element>")).then((output) => {
+            throw new Error("Should not successfully render");
+        }).catch(() => {});
+    });
 });

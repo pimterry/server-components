@@ -121,6 +121,7 @@ Larger motivating example:
 - [x] Allow attribute access
 - [x] Allow asynchronous rendering
 - [x] Allow associating behaviour with component nodes
+- [x] Sensibly expose failures in components
 - [ ] Only allow components with '-' in the name (as on the front-end)
 - [ ] Publish on NPM
 - [ ] Allow programmatic component creation & trigger attachedCallbacks

@@ -32,8 +32,10 @@ exports.render = function render (input) {
                 // TODO: Should probably clone node, not change prototype, for performance
                 Object.setPrototypeOf(node, customElement);
                 if (customElement.createdCallback) {
-                    var createdResult = customElement.createdCallback.call(node);
-                    createdPromises.push(Promise.resolve(createdResult));
+                    var createdResult = new Promise((resolve) => {
+                        resolve(customElement.createdCallback.call(node));
+                    });
+                    createdPromises.push(createdResult);
                 }
             }
         }
