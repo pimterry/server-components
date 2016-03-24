@@ -123,7 +123,7 @@ Larger motivating example:
 - [x] Allow associating behaviour with component nodes
 - [x] Sensibly expose failures in components
 - [ ] Only allow components with '-' in the name (as on the front-end)
-- [ ] Publish on NPM
+- [x] Publish on NPM
 - [ ] Allow programmatic component creation & trigger attachedCallbacks
 - [ ] Allow rendering of document fragments (not just whole documents)
 - [ ] Support type extension elements
