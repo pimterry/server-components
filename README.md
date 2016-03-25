@@ -11,20 +11,23 @@ relevant on the server, where we often want to compose views together too.
 
 Existing templating languages focus mostly on how data is bound to individual elements on the page, and composing together
 elements is something of an after thought. See Mustache's [partials](https://mustache.github.io/mustache.5.html#Partials),
-for example, which provide no isolation, and no ability to parameterize their use whatsoever. Some much larger libraries like
-Jade include features like [mixins](http://jade-lang.com/reference/mixins/), which get closer (allowing you to pass string
-arguments, and a single block of HTML to wrap), but these mixins can't include substantial logic, or introspect the content
-they're given, as web components can on the front-end (a powerful tool; see the motivating example in 'Usage' below).
+for example, which provide no isolation and no ability to parameterize their use whatsoever, or Mustache's
+[functions](https://github.com/janl/mustache.js/#functions) and Jade's [mixins](http://jade-lang.com/reference/mixins/),
+which can take basic parameters, but can only really provide basic string transformations. Templating libraries rarely let you
+introspect or interact with the rest of the content they're given, as web components can on the front-end. This simple but powerful
+change opens the possibility to compose together interacting & easily configurable components (see the motivating example in 'Usage'
+below).
 
-Fundamentally these limitations exist because templating libraries typically work purely on flat strings, throwing away
-the structure and semantics of what they're given.
+Fundamentally these limitations exist because templating libraries typically work purely on flat string. They're given content
+that often defines a clear structure (an HTML DOM hierarchy), but they rarely interpret and use that, throwing away the semantics
+and structure of what they're given.
 
-Some tools do do this somewhat better, but only with more heavy-weight approaches, almost entirely only on the client-side,
-and diverging substantially from the existing custom elements standard for this. That's all great if you want a single big
-framework in which to build your huge single page app, but if you want an simple light-weight works-without-javascript
-easily-accessible fast approach, you need a small standalone tool to render your page server-side. You don't need a whole
-front-end UI framework, with all the page weight and complexity that brings, just to be able to easily compose together
-a page of widgets.
+This isn't everywhere: a few tools do do this somewhat better, but only with more heavy-weight approaches, almost entirely
+only on the client-side, and diverging substantially from the existing custom elements standard for this. That's all great
+if you want to commit to a big framework in which to build your huge single page app, but if you want an simple light-weight
+works-without-javascript easily-accessible fast way to build websites, you need a small standalone tool to render your page
+server-side. You don't need a whole front-end UI framework, with all the page weight and complexity that brings, just to be
+able to define and compose together a page of widgets.
 
 Server Components is solving this: it's a minimal tool to compose together your application UI on the server side.
 
@@ -33,9 +36,9 @@ doesn't allow any logic in templates whatsoever. It allows you to compose togeth
 logic internally they'd like).
 
 This is currently aiming to be structurally the same as front-end custom elements, with the minimal changes required
-to make this work outside a full DOM environment. In principle, this should mean you can take a server-side component and
-render it client-side with no changes (but this is early stages, there's some basic string replacement needed right now,
-and generally YMMV).
+to make this work in Node, outside the traditional DOM environment. In principle, this compatibility should mean you can take a
+server-side component and render it client-side with no changes (but this is early stages, there's some basic find/replace steps
+required right now, and generally YMMV).
 
 ## Caveats
 
@@ -86,6 +89,9 @@ Larger motivating example:
 
 </head>
 <body>
+<h1>All about Me</h1>
+
+<social-media-icons twitter="pimterry" github="pimterry" />
 
 <google-map latitude="41.390205" longitude="2.154007"></google-map>
 
@@ -96,18 +102,18 @@ Larger motivating example:
 </item-feed>
 
 <item-feed id="minor-events">
-    <twitter-source />
-    <github-source include="PullRequest" />
+    <twitter-source username="pimterry" />
+    <github-source  username="pimterry" type-filter="PullRequestEvent" />
 </item-feed>
 
 <item-carousel>
-    <slidedeck-source    icon="./slides-icon" format="image" />
-    <manual-image-source icon="./slides-icon" source="slidesets" />
+    <speakerdeck-source icon="./slides-icon" />
+    <manual-source      icon="./slides-icon" source="slidesets" />
 </item-carousel>
 
 <item-carousel>
-    <manual-image-source icon="./video-icon" source="talk-videos" />
-    <manual-image-source icon="./photo-icon" source="talk-photos" />
+    <manual-source icon="./video-icon" source="talk-videos" />
+    <manual-source icon="./photo-icon" source="talk-photos" />
 </item-carousel>
 
 </body>
@@ -127,6 +133,8 @@ Larger motivating example:
 - [ ] Allow programmatic component creation & trigger attachedCallbacks
 - [ ] Allow rendering of document fragments (not just whole documents)
 - [ ] Support type extension elements
+- [ ] Work out approaches for loading resources (CSS/images) from components
+- [ ] Document how to use this in detail
 - [ ] Document differences with real web components
 - [ ] Make it easy to build external easily registered custom element plugins (`serverComponents.use(require('my-element'))`?)
 - [ ] Make it easy to integrate server components with a data-binding templating library (e.g. mustache)
