@@ -1,10 +1,53 @@
 # Server Components [![Travis Build Status](https://img.shields.io/travis/pimterry/server-components.svg)](https://travis-ci.org/pimterry/server-components)
 
-An dumb simple component framework for server-side rendering, based on web components.
+An simple & lightweight component framework for Node.js server-side rendering, based on web components.
 
 This is a proof of concept right now, to look at using web components for structure on the server-side, not just the client-side.
 
+Composable flexible and powerful approaches to building web applications don't have to require heavyweight front-end JS frameworks,
+buildsteps, pre-compilers, and enormous downloads. We can take the same ideas (and standards), apply them directly server side,
+and gain all that power without the page weight.
+
 ## Motivation
+
+```javascript
+<html>
+<head>
+
+<social-media-tags name="My Page" image="./social-media-image" ></social-media-tags>
+
+</head>
+<body>
+<h1>What am I up to?</h1>
+
+<social-media-icons twitter="pimterry" github="pimterry" />
+
+<google-map latitude="41.390205" longitude="2.154007"></google-map>
+
+<item-feed id="minor-events">
+    <twitter-source username="pimterry" />
+    <github-source  username="pimterry" type-filter="PullRequestEvent" />
+</item-feed>
+
+<item-feed id="manually-curated-content">
+    <manual-source icon="./blog-icon"    source="blog-posts" />
+    <manual-source icon="./talk-icon"    source="talks-given" />
+    <manual-source icon="./project-icon" source="project-events" />
+</item-feed>
+
+<item-carousel>
+    <speakerdeck-source icon="./slides-icon" />
+    <manual-source      icon="./slides-icon" source="slidesets" />
+</item-carousel>
+
+<item-carousel>
+    <manual-source icon="./video-icon" source="talk-videos" />
+    <manual-source icon="./photo-icon" source="talk-photos" />
+</item-carousel>
+
+</body>
+</html>
+```
 
 Web components are a way of composing isolated logic components of UI together. This is useful on the client-side, but is equally
 relevant on the server, where we often want to compose views together too.
@@ -15,8 +58,7 @@ for example, which provide no isolation and no ability to parameterize their use
 [functions](https://github.com/janl/mustache.js/#functions) and Jade's [mixins](http://jade-lang.com/reference/mixins/),
 which can take basic parameters, but can only really provide basic string transformations. Templating libraries rarely let you
 introspect or interact with the rest of the content they're given, as web components can on the front-end. This simple but powerful
-change opens the possibility to compose together interacting & easily configurable components (see the motivating example in 'Usage'
-below).
+change opens the possibility to compose together interacting & easily configurable components (see the motivating example above).
 
 Fundamentally these limitations exist because templating libraries typically work purely on flat string. They're given content
 that often defines a clear structure (an HTML DOM hierarchy), but they rarely interpret and use that, throwing away the semantics
@@ -52,6 +94,10 @@ limitations (no issues so far though).
 Full serious web-component compatible support is probably blocked on https://github.com/tmpvar/jsdom/issues/1030, and I
 expect JSDom performance will block using that for any serious use for quite a while. Domino perf is much better.
 
+IE 8 and earlier render unknown elements poorly, and will probably render the output of this badly. This is
+[solvable](https://blog.whatwg.org/supporting-new-elements-in-ie) in future (although it requires front-end JS), but isn't solved
+here quite yet.
+
 ## Usage
 
 ```javascript
@@ -77,47 +123,6 @@ serverComponents.render(`
 `).then((output) => {
     // Output = "<html><head></head><body><my-new-element>Hi there</my-new-element></body></html>"
 });
-```
-
-Larger motivating example:
-
-```javascript
-<html>
-<head>
-
-<social-media-tags name="My Page" image="./social-media-image" ></social-media-tags>
-
-</head>
-<body>
-<h1>All about Me</h1>
-
-<social-media-icons twitter="pimterry" github="pimterry" />
-
-<google-map latitude="41.390205" longitude="2.154007"></google-map>
-
-<item-feed id="major-content">
-    <manual-source icon="./blog-icon"    source="blog-posts" />
-    <manual-source icon="./talk-icon"    source="talks-given" />
-    <manual-source icon="./project-icon" source="project-events" />
-</item-feed>
-
-<item-feed id="minor-events">
-    <twitter-source username="pimterry" />
-    <github-source  username="pimterry" type-filter="PullRequestEvent" />
-</item-feed>
-
-<item-carousel>
-    <speakerdeck-source icon="./slides-icon" />
-    <manual-source      icon="./slides-icon" source="slidesets" />
-</item-carousel>
-
-<item-carousel>
-    <manual-source icon="./video-icon" source="talk-videos" />
-    <manual-source icon="./photo-icon" source="talk-photos" />
-</item-carousel>
-
-</body>
-</html>
 ```
 
 ## Progress
