@@ -135,6 +135,7 @@ serverComponents.render(`
 - [x] Sensibly expose failures in components
 - [ ] Only allow components with '-' in the name (as on the front-end)
 - [x] Publish on NPM
+- [ ] Debug mode: enable per-component to log initial & resulting HTML and all DOM events
 - [ ] Allow programmatic component creation & trigger attachedCallbacks
 - [ ] Allow rendering of document fragments (not just whole documents)
 - [ ] Support type extension elements
