@@ -139,7 +139,7 @@ serverComponents.render(`
 - [ ] Allow programmatic component creation & trigger attachedCallbacks
 - [ ] Allow rendering of document fragments (not just whole documents)
 - [ ] Support type extension elements
-- [ ] Work out approaches for loading resources (CSS/images) from components
+- [ ] Work out approaches for loading resources (CSS/images) from components ([PostCSS](https://github.com/outpunk/postcss-modules)?)
 - [ ] Document how to use this in detail
 - [ ] Document differences with real web components
 - [ ] Make it easy to build external easily registered custom element plugins (`serverComponents.use(require('my-element'))`?)
