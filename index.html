@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Server Components by pimterry</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Server Components</h1>
+      <h2 class="project-tagline">An simple &amp; lightweight component framework for Node.js server-side rendering, based on web components.</h2>
+      <a href="https://github.com/pimterry/server-components" class="btn">View on GitHub</a>
+      <a href="https://github.com/pimterry/server-components/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/pimterry/server-components/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="server-components-" class="anchor" href="#server-components-" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Server Components <a href="https://travis-ci.org/pimterry/server-components"><img src="https://img.shields.io/travis/pimterry/server-components.svg" alt="Travis Build Status"></a>
+</h1>
+
+<p>An simple &amp; lightweight component framework for Node.js server-side rendering, based on web components.</p>
+
+<p>This is a proof of concept right now, to look at using web components for structure on the server-side, not just the client-side.</p>
+
+<p>Composable flexible and powerful approaches to building web applications don't have to require heavyweight front-end JS frameworks,
+buildsteps, pre-compilers, and enormous downloads. We can take the same ideas (and standards), apply them directly server side,
+and gain all that power without the page weight.</p>
+
+<h2>
+<a id="motivation" class="anchor" href="#motivation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Motivation</h2>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">&lt;</span>html<span class="pl-k">&gt;</span>
+<span class="pl-k">&lt;</span>head<span class="pl-k">&gt;</span>
+
+<span class="pl-k">&lt;</span>social<span class="pl-k">-</span>media<span class="pl-k">-</span>tags name<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>My Page<span class="pl-pds">"</span></span> image<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>./social-media-image<span class="pl-pds">"</span></span> <span class="pl-k">&gt;&lt;</span><span class="pl-k">/</span>social<span class="pl-k">-</span>media<span class="pl-k">-</span>tags<span class="pl-k">&gt;</span>
+
+<span class="pl-k">&lt;</span><span class="pl-k">/</span>head<span class="pl-k">&gt;</span>
+<span class="pl-k">&lt;</span>body<span class="pl-k">&gt;</span>
+<span class="pl-k">&lt;</span>h1<span class="pl-k">&gt;</span>What am I up to<span class="pl-k">?</span><span class="pl-k">&lt;</span><span class="pl-k">/</span>h1<span class="pl-k">&gt;</span>
+
+<span class="pl-k">&lt;</span>social<span class="pl-k">-</span>media<span class="pl-k">-</span>icons twitter<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>pimterry<span class="pl-pds">"</span></span> github<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>pimterry<span class="pl-pds">"</span></span> <span class="pl-k">/</span><span class="pl-k">&gt;</span>
+
+<span class="pl-k">&lt;</span>google<span class="pl-k">-</span>map latitude<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>41.390205<span class="pl-pds">"</span></span> longitude<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>2.154007<span class="pl-pds">"</span></span><span class="pl-k">&gt;&lt;</span><span class="pl-k">/</span>google<span class="pl-k">-</span>map<span class="pl-k">&gt;</span>
+
+<span class="pl-k">&lt;</span>item<span class="pl-k">-</span>feed id<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>minor-events<span class="pl-pds">"</span></span><span class="pl-k">&gt;</span>
+    <span class="pl-k">&lt;</span>twitter<span class="pl-k">-</span>source username<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>pimterry<span class="pl-pds">"</span></span> <span class="pl-k">/</span><span class="pl-k">&gt;</span>
+    <span class="pl-k">&lt;</span>github<span class="pl-k">-</span>source  username<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>pimterry<span class="pl-pds">"</span></span> type<span class="pl-k">-</span>filter<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>PullRequestEvent<span class="pl-pds">"</span></span> <span class="pl-k">/</span><span class="pl-k">&gt;</span>
+<span class="pl-k">&lt;</span><span class="pl-k">/</span>item<span class="pl-k">-</span>feed<span class="pl-k">&gt;</span>
+
+<span class="pl-k">&lt;</span>item<span class="pl-k">-</span>feed id<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>manually-curated-content<span class="pl-pds">"</span></span><span class="pl-k">&gt;</span>
+    <span class="pl-k">&lt;</span>manual<span class="pl-k">-</span>source icon<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>./blog-icon<span class="pl-pds">"</span></span>    source<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>blog-posts<span class="pl-pds">"</span></span> <span class="pl-k">/</span><span class="pl-k">&gt;</span>
+    <span class="pl-k">&lt;</span>manual<span class="pl-k">-</span>source icon<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>./talk-icon<span class="pl-pds">"</span></span>    source<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>talks-given<span class="pl-pds">"</span></span> <span class="pl-k">/</span><span class="pl-k">&gt;</span>
+    <span class="pl-k">&lt;</span>manual<span class="pl-k">-</span>source icon<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>./project-icon<span class="pl-pds">"</span></span> source<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>project-events<span class="pl-pds">"</span></span> <span class="pl-k">/</span><span class="pl-k">&gt;</span>
+<span class="pl-k">&lt;</span><span class="pl-k">/</span>item<span class="pl-k">-</span>feed<span class="pl-k">&gt;</span>
+
+<span class="pl-k">&lt;</span>item<span class="pl-k">-</span>carousel<span class="pl-k">&gt;</span>
+    <span class="pl-k">&lt;</span>speakerdeck<span class="pl-k">-</span>source icon<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>./slides-icon<span class="pl-pds">"</span></span> <span class="pl-k">/</span><span class="pl-k">&gt;</span>
+    <span class="pl-k">&lt;</span>manual<span class="pl-k">-</span>source      icon<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>./slides-icon<span class="pl-pds">"</span></span> source<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>slidesets<span class="pl-pds">"</span></span> <span class="pl-k">/</span><span class="pl-k">&gt;</span>
+<span class="pl-k">&lt;</span><span class="pl-k">/</span>item<span class="pl-k">-</span>carousel<span class="pl-k">&gt;</span>
+
+<span class="pl-k">&lt;</span>item<span class="pl-k">-</span>carousel<span class="pl-k">&gt;</span>
+    <span class="pl-k">&lt;</span>manual<span class="pl-k">-</span>source icon<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>./video-icon<span class="pl-pds">"</span></span> source<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>talk-videos<span class="pl-pds">"</span></span> <span class="pl-k">/</span><span class="pl-k">&gt;</span>
+    <span class="pl-k">&lt;</span>manual<span class="pl-k">-</span>source icon<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>./photo-icon<span class="pl-pds">"</span></span> source<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>talk-photos<span class="pl-pds">"</span></span> <span class="pl-k">/</span><span class="pl-k">&gt;</span>
+<span class="pl-k">&lt;</span><span class="pl-k">/</span>item<span class="pl-k">-</span>carousel<span class="pl-k">&gt;</span>
+
+<span class="pl-k">&lt;</span><span class="pl-k">/</span>body<span class="pl-k">&gt;</span>
+<span class="pl-k">&lt;</span><span class="pl-k">/</span>html<span class="pl-k">&gt;</span></pre></div>
+
+<p>Web components are a way of composing isolated logic components of UI together. This is useful on the client-side, but is equally
+relevant on the server, where we often want to compose views together too.</p>
+
+<p>Existing templating languages focus mostly on how data is bound to individual elements on the page, and composing together
+elements is something of an after thought. See Mustache's <a href="https://mustache.github.io/mustache.5.html#Partials">partials</a>,
+for example, which provide no isolation and no ability to parameterize their use whatsoever, or Mustache's
+<a href="https://github.com/janl/mustache.js/#functions">functions</a> and Jade's <a href="http://jade-lang.com/reference/mixins/">mixins</a>,
+which can take basic parameters, but can only really provide basic string transformations. Templating libraries rarely let you
+introspect or interact with the rest of the content they're given, as web components can on the front-end. This simple but powerful
+change opens the possibility to compose together interacting &amp; easily configurable components (see the motivating example above).</p>
+
+<p>Fundamentally these limitations exist because templating libraries typically work purely on flat string. They're given content
+that often defines a clear structure (an HTML DOM hierarchy), but they rarely interpret and use that, throwing away the semantics
+and structure of what they're given.</p>
+
+<p>This isn't everywhere: a few tools do do this somewhat better, but only with more heavy-weight approaches, almost entirely
+only on the client-side, and diverging substantially from the existing custom elements standard for this. That's all great
+if you want to commit to a big framework in which to build your huge single page app, but if you want an simple light-weight
+works-without-javascript easily-accessible fast way to build websites, you need a small standalone tool to render your page
+server-side. You don't need a whole front-end UI framework, with all the page weight and complexity that brings, just to be
+able to define and compose together a page of widgets.</p>
+
+<p>Server Components is solving this: it's a minimal tool to compose together your application UI on the server side.</p>
+
+<p>It doesn't dynamically build templates from data (although you can easily layer a typical templating language on top to do so). It
+doesn't allow any logic in templates whatsoever. It allows you to compose together components (who in turn can contain whatever
+logic internally they'd like).</p>
+
+<p>This is currently aiming to be structurally the same as front-end custom elements, with the minimal changes required
+to make this work in Node, outside the traditional DOM environment. In principle, this compatibility should mean you can take a
+server-side component and render it client-side with no changes (but this is early stages, there's some basic find/replace steps
+required right now, and generally YMMV).</p>
+
+<h2>
+<a id="caveats" class="anchor" href="#caveats" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Caveats</h2>
+
+<p>This is not attempting to polyfill HTML Imports (although it potentially could as an import mechanism in future? Interesting
+idea, not sure if that's important), Template tags (unnecessary; all DOM is inert server-side) or the Shadow DOM (technically
+challenging, and less useful server-side).</p>
+
+<p>Core DOM functionality now built on <a href="https://github.com/fgnass/domino">Domino</a>, so DOM manipulation comes with Domino's
+limitations (no issues so far though).</p>
+
+<p>Full serious web-component compatible support is probably blocked on <a href="https://github.com/tmpvar/jsdom/issues/1030">https://github.com/tmpvar/jsdom/issues/1030</a>, and I
+expect JSDom performance will block using that for any serious use for quite a while. Domino perf is much better.</p>
+
+<p>IE 8 and earlier render unknown elements poorly, and will probably render the output of this badly. This is
+<a href="https://blog.whatwg.org/supporting-new-elements-in-ie">solvable</a> in future (although it requires front-end JS), but isn't solved
+here quite yet.</p>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h2>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-c">// Define and register an element somewhere</span>
+
+<span class="pl-k">var</span> NewElement <span class="pl-k">=</span> <span class="pl-smi">serverComponents</span>.<span class="pl-en">newElement</span>();
+
+<span class="pl-smi">NewElement</span>.<span class="pl-en">createdCallback</span> <span class="pl-k">=</span> <span class="pl-k">function</span> () {
+    <span class="pl-v">this</span>.<span class="pl-smi">innerHTML</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Hi there<span class="pl-pds">"</span></span>;
+};
+
+<span class="pl-smi">serverComponents</span>.<span class="pl-en">registerElement</span>(<span class="pl-s"><span class="pl-pds">"</span>my-new-element<span class="pl-pds">"</span></span>, { prototype<span class="pl-k">:</span> NewElement });
+
+<span class="pl-c">// Later, render an HTML document that references that element</span>
+
+<span class="pl-smi">serverComponents</span>.<span class="pl-en">render</span>(<span class="pl-s"><span class="pl-pds">`</span></span>
+<span class="pl-s">    &lt;html&gt;</span>
+<span class="pl-s">    &lt;head&gt;&lt;/head&gt;</span>
+<span class="pl-s">    &lt;body&gt;</span>
+<span class="pl-s">        &lt;my-new-element&gt;&lt;/my-new-element&gt;</span>
+<span class="pl-s">    &lt;/body&gt;</span>
+<span class="pl-s">    &lt;/html&gt;</span>
+<span class="pl-s"><span class="pl-pds">`</span></span>).<span class="pl-en">then</span>((<span class="pl-smi">output</span>) <span class="pl-k">=&gt;</span> {
+    <span class="pl-c">// Output = "&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;&lt;my-new-element&gt;Hi there&lt;/my-new-element&gt;&lt;/body&gt;&lt;/html&gt;"</span>
+});</pre></div>
+
+<h2>
+<a id="progress" class="anchor" href="#progress" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Progress</h2>
+
+<ul>
+<li>[x] Allow definition of components</li>
+<li>[x] Render components, triggering the createdCallback and allowing component transformation</li>
+<li>[x] Allow attribute access</li>
+<li>[x] Allow asynchronous rendering</li>
+<li>[x] Allow associating behaviour with component nodes</li>
+<li>[x] Sensibly expose failures in components</li>
+<li>[ ] Only allow components with '-' in the name (as on the front-end)</li>
+<li>[x] Publish on NPM</li>
+<li>[ ] Debug mode: enable per-component to log initial &amp; resulting HTML and all DOM events</li>
+<li>[ ] Allow programmatic component creation &amp; trigger attachedCallbacks</li>
+<li>[ ] Allow rendering of document fragments (not just whole documents)</li>
+<li>[ ] Support type extension elements</li>
+<li>[ ] Work out approaches for loading resources (CSS/images) from components (<a href="https://github.com/outpunk/postcss-modules">PostCSS</a>?)</li>
+<li>[ ] Document how to use this in detail</li>
+<li>[ ] Document differences with real web components</li>
+<li>[ ] Make it easy to build external easily registered custom element plugins (<code>serverComponents.use(require('my-element'))</code>?)</li>
+<li>[ ] Make it easy to integrate server components with a data-binding templating library (e.g. mustache)</li>
+<li>[ ] Make it easy to integrate with Express as a view engine</li>
+<li>[ ] Write a selection of useful components to start with</li>
+<li>[ ] Tests with some common example implementation of existing web components</li>
+<li>[ ] Create transparent front-end support (i.e. translate back to normal web components API internally)</li>
+</ul>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/pimterry/server-components">Server Components</a> is maintained by <a href="https://github.com/pimterry">pimterry</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
