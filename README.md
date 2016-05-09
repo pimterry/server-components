@@ -1,5 +1,7 @@
 # Server Components [![Travis Build Status](https://img.shields.io/travis/pimterry/server-components.svg)](https://travis-ci.org/pimterry/server-components)
 
+[![Join the chat at https://gitter.im/pimterry/server-components](https://badges.gitter.im/pimterry/server-components.svg)](https://gitter.im/pimterry/server-components?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 An simple & lightweight component framework for Node.js server-side rendering, based on web components.
 
 This is a proof of concept right now, to look at using web components for structure on the server-side, not just the client-side.
