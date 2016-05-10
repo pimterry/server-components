@@ -1,5 +1,6 @@
 var expect = require('chai').expect;
 
+var domino = require("domino");
 var serverComponents = require("../src/index.js");
 
 function body(content) {
@@ -70,6 +71,35 @@ describe("When multiple DOM elements are present", () => {
             )).then((output) => {
                 expect(output).to.equal(body(
                     "<data-displayer>Data: [1,2,3]</data-displayer>"
+                ));
+            });
+        });
+
+        it("receive bubbling events from child elements", () => {
+            var EventRecorder = serverComponents.newElement();
+            EventRecorder.createdCallback = function () {
+                var resultsNode = this.ownerDocument.createElement("p");
+                this.appendChild(resultsNode);
+
+                this.addEventListener("my-event", (event) => {
+                    resultsNode.innerHTML = "Event received";
+                });
+            };
+            serverComponents.registerElement("event-recorder", { prototype: EventRecorder });
+
+            var EventElement = serverComponents.newElement();
+            EventElement.createdCallback = function () {
+                this.dispatchEvent(new domino.impl.CustomEvent('my-event', {
+                    bubbles: true
+                }));
+            };
+            serverComponents.registerElement("event-source", { prototype: EventElement });
+
+            return serverComponents.render(body(
+                "<event-recorder><event-source></event-source></event-recorder>"
+            )).then((output) => {
+                expect(output).to.equal(body(
+                    "<event-recorder><event-source></event-source><p>Event received</p></event-recorder>"
                 ));
             });
         });
