@@ -34,7 +34,8 @@
     "watch": "^0.18.0"
   },
   "dependencies": {
-    "domino": "^1.0.23"
+    "domino": "^1.0.23",
+    "validate-element-name": "^1.0.0"
   },
   "jshintConfig": {
     "esversion": 6,

@@ -1,6 +1,7 @@
 "use strict";
 
 var domino = require("domino");
+var validateElementName = require("validate-element-name");
 
 exports.newElement = function newElement() {
     return Object.create(domino.impl.HTMLElement.prototype);
@@ -9,6 +10,11 @@ exports.newElement = function newElement() {
 var registeredElements = {};
 
 exports.registerElement = function registerElement(name, options) {
+    var nameValidationResult = validateElementName(name);
+    if (!nameValidationResult.isValid) {
+        throw new Error(`Registration failed for '${name}'. ${nameValidationResult.message}`);
+    }
+    
     registeredElements[name] = options.prototype;
 };
 
