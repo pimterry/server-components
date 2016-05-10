@@ -14,7 +14,7 @@ exports.registerElement = function registerElement(name, options) {
     if (!nameValidationResult.isValid) {
         throw new Error(`Registration failed for '${name}'. ${nameValidationResult.message}`);
     }
-    
+
     registeredElements[name] = options.prototype;
 };
 

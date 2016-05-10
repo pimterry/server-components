@@ -103,17 +103,17 @@ here quite yet.
 ```javascript
 // Define and register an element somewhere
 
-var NewElement = serverComponents.newElement();
+var NewElement = ServerComponents.newElement();
 
 NewElement.createdCallback = function () {
     this.innerHTML = "Hi there";
 };
 
-serverComponents.registerElement("my-new-element", { prototype: NewElement });
+ServerComponents.registerElement("my-new-element", { prototype: NewElement });
 
 // Later, render an HTML document that references that element
 
-serverComponents.render(`
+ServerComponents.render(`
     <html>
     <head></head>
     <body>
@@ -144,7 +144,7 @@ serverComponents.render(`
 - [ ] Work out approaches for loading resources (CSS/images) from components ([PostCSS](https://github.com/outpunk/postcss-modules)?)
 - [ ] Document how to use this in detail
 - [ ] Document differences with real web components
-- [ ] Make it easy to build external easily registered custom element plugins (`serverComponents.use(require('my-element'))`?)
+- [ ] Make it easy to build external easily registered custom element plugins (`ServerComponents.use(require('my-element'))`?)
 - [ ] Make it easy to integrate server components with a data-binding templating library (e.g. mustache)
 - [ ] Make it easy to integrate with Express as a view engine
 - [ ] Write a selection of useful components to start with
