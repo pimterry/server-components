@@ -4,8 +4,9 @@
   "description": "An ultra-dumb component framework for server-side rendering, inspired by web components",
   "main": "src/index.js",
   "scripts": {
-    "test": "mocha test/",
-    "dev": "mocha -w test/"
+    "lint": "jshint . --exclude='node_modules' || exit 1",
+    "test": "npm run lint && mocha test/",
+    "dev": "watch 'npm run test' ."
   },
   "repository": {
     "type": "git",
@@ -28,9 +29,15 @@
   "homepage": "https://github.com/pimterry/server-components#readme",
   "devDependencies": {
     "chai": "^3.5.0",
-    "mocha": "^2.4.5"
+    "jshint": "^2.9.2",
+    "mocha": "^2.4.5",
+    "watch": "^0.18.0"
   },
   "dependencies": {
     "domino": "^1.0.23"
+  },
+  "jshintConfig": {
+    "esversion": 6,
+    "node": true
   }
 }
