@@ -133,18 +133,20 @@ ServerComponents.render(`
 - [x] Allow asynchronous rendering
 - [x] Allow associating behaviour with component nodes
 - [x] Sensibly expose failures in components
-- [ ] Find a clean way to expose useful dom globals (e.g. Event/CustomEvent)
+- [x] Find a clean way to expose useful dom globals (e.g. Event/CustomEvent)
 - [x] Only allow components with '-' in the name (as on the front-end)
 - [x] Publish on NPM
+- [ ] Work out approaches for loading resources (CSS/images) from components ([PostCSS](https://github.com/outpunk/postcss-modules)?)
+- [ ] Document how to use this in detail
+- [ ] Move this TODO list to Github issues
+- [ ] Announce a bit, to get some feedback and traction
 - [ ] Debug mode: enable per-component to log initial & resulting HTML and all DOM events
 - [ ] Check element.attributes behaviour is correct (and usable)
 - [ ] Allow programmatic component creation & trigger attachedCallbacks
 - [ ] Allow rendering of document fragments (not just whole documents)
 - [ ] Support type extension elements
-- [ ] Work out approaches for loading resources (CSS/images) from components ([PostCSS](https://github.com/outpunk/postcss-modules)?)
-- [ ] Document how to use this in detail
 - [ ] Document differences with real web components
-- [ ] Make it easy to build external easily registered custom element plugins (`ServerComponents.use(require('my-element'))`?)
+- [ ] Come up with easy patterns to build external easily registered custom element plugins (`ServerComponents.use(require('my-element'))`?)
 - [ ] Make it easy to integrate server components with a data-binding templating library (e.g. mustache)
 - [ ] Make it easy to integrate with Express as a view engine
 - [ ] Write a selection of useful components to start with
