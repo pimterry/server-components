@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "jshint . --exclude='node_modules' || exit 1",
     "test": "npm run lint && mocha test/",
-    "dev": "watch 'npm run test' ."
+    "dev": "watch 'npm run test -s' src/ test/"
   },
   "repository": {
     "type": "git",
