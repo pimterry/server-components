@@ -1,6 +1,5 @@
 var expect = require('chai').expect;
 
-var domino = require("domino");
 var ServerComponents = require("../src/index.js");
 
 function body(content) {
@@ -89,7 +88,7 @@ describe("When multiple DOM elements are present", () => {
 
             var EventElement = ServerComponents.newElement();
             EventElement.createdCallback = function () {
-                this.dispatchEvent(new domino.impl.CustomEvent('my-event', {
+                this.dispatchEvent(new ServerComponents.dom.CustomEvent('my-event', {
                     bubbles: true
                 }));
             };

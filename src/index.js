@@ -3,6 +3,13 @@
 var domino = require("domino");
 var validateElementName = require("validate-element-name");
 
+/**
+ * The DOM object (ServerComponents.dom) exposes tradition DOM objects (normally globally available
+ * in browsers) such as the CustomEvent and various HTMLElement classes, for your component
+ * implementations.
+ */
+exports.dom = domino.impl;
+
 exports.newElement = function newElement() {
     return Object.create(domino.impl.HTMLElement.prototype);
 };
