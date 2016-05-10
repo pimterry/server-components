@@ -19,23 +19,22 @@ function recurseTree(rootNode, callback) {
     }
 }
 
-exports.render = function render (input) {
-    var doc = domino.createDocument(input);
+exports.render = function render(input) {
+    let doc = domino.createDocument(input);
 
-    var createdPromises = [];
+    let createdPromises = [];
 
     recurseTree(doc, (node) => {
         if (node.tagName) {
-            var nodeType = node.tagName.toLowerCase();
-            var customElement = registeredElements[nodeType];
+            let nodeType = node.tagName.toLowerCase();
+            let customElement = registeredElements[nodeType];
             if (customElement) {
                 // TODO: Should probably clone node, not change prototype, for performance
                 Object.setPrototypeOf(node, customElement);
                 if (customElement.createdCallback) {
-                    var createdResult = new Promise((resolve) => {
+                    createdPromises.push(new Promise((resolve) => {
                         resolve(customElement.createdCallback.call(node));
-                    });
-                    createdPromises.push(createdResult);
+                    }));
                 }
             }
         }
