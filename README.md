@@ -133,6 +133,7 @@ serverComponents.render(`
 - [x] Allow asynchronous rendering
 - [x] Allow associating behaviour with component nodes
 - [x] Sensibly expose failures in components
+- [ ] Find a clean way to expose useful dom globals (e.g. Event/CustomEvent)
 - [ ] Only allow components with '-' in the name (as on the front-end)
 - [x] Publish on NPM
 - [ ] Debug mode: enable per-component to log initial & resulting HTML and all DOM events
