@@ -6,7 +6,11 @@
   "scripts": {
     "lint": "jshint . --exclude='node_modules' || exit 1",
     "test": "npm run lint && mocha test/",
-    "dev": "watch 'npm run test -s' src/ test/"
+    "dev": "watch 'npm run test -s' src/ test/",
+
+    "release:patch": "np patch",
+    "release:minor": "np minor",
+    "release:major": "np major"
   },
   "repository": {
     "type": "git",
@@ -31,6 +35,7 @@
     "chai": "^3.5.0",
     "jshint": "^2.9.2",
     "mocha": "^2.4.5",
+    "np": "^1.2.1",
     "watch": "^0.18.0"
   },
   "dependencies": {
