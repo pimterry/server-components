@@ -15,6 +15,10 @@ describe("Basic component functionality", () => {
         });
     });
 
+    it("exposes a config object as .config", () => {
+        expect(ServerComponents.config).to.deep.equal({});
+    });
+
     it("replaces components with their rendered result", () => {
         var NewElement = ServerComponents.newElement();
         NewElement.createdCallback = function () { this.textContent = "hi there"; };
