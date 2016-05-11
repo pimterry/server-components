@@ -1,24 +1,36 @@
 # Server Components [![Travis Build Status](https://img.shields.io/travis/pimterry/server-components.svg)](https://travis-ci.org/pimterry/server-components) [![Join the chat at https://gitter.im/pimterry/server-components](https://badges.gitter.im/pimterry/server-components.svg)](https://gitter.im/pimterry/server-components?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-An simple & lightweight component framework for Node.js server-side rendering, based on web components.
+Server Components are a simple, lightweight tool for Node.js server-side rendering, following the web components spec.
 
-This is a proof of concept right now, to look at using web components for structure on the server-side, not just the client-side.
+Composable flexible and powerful approaches to building web applications don't have to require heavyweight front-end JS frameworks, buildsteps, pre-compilers, and enormous downloads.
 
-Composable flexible and powerful approaches to building web applications don't have to require heavyweight front-end JS frameworks,
-buildsteps, pre-compilers, and enormous downloads. We can take the same ideas (and standards), apply them directly server side,
-and gain all that power without the page weight.
+You can take the same ideas (and standards), apply them directly server side, to gain all that power without serving any of the page weight, without having to maintain all the complexity, and without breaking accessibility/SEO/client-side performance.
 
-## Motivation
+**Server Components is still in its early stages, and subject to change!** The core functionality is all in place and working though, and it should be stable and ready to play around with whenever you are.
+
+## Why does this exist?
+
+Server Components is designed for anybody building web pages who wants to build on the web natively, with all its built-in accessibility, performance and SEO benefits, not floating on a wobbly JavaScript layer on top.
+
+For 90% of web sites, you don't need the core of your app to run purely inside big ultra-flashy web-breaking client-side JavaScript. Many of us have been doing so not because our sites need to because server side rendering isn't enough to deliver our core experience, but because JS frameworks offer the best developer experience.
+
+Tools like React, Ember, Angular and friends make building web pages a delight. That's because they've been in a great place to discover and develop better approaches to building and managing UI complexity though, not because they're running client-side. We've conflated to two.
+
+We can fix this. We can take those same ideas and designs (critically, the key element they all agree on: composing applications together from many standalone elements), and get the magic and maintainability on the server side too, without the costs.
+
+Server Components is an attempt to do that, by supporting the Web Components spec (the W3C work pulling out the core magic of these frameworks into a standard) in server-side Node.js.
+
+### Example:
 
 ```javascript
 <html>
 <head>
 
-<social-media-tags name="My Page" image="./social-media-image" ></social-media-tags>
+<social-media-meta-tags name="My Profile Page" image="./social-media-image.png" ></social-media-tags>
 
 </head>
 <body>
-<h1>What am I up to?</h1>
+<h1>My Profile Page</h1>
 
 <social-media-icons twitter="pimterry" github="pimterry" />
 
@@ -49,78 +61,63 @@ and gain all that power without the page weight.
 </html>
 ```
 
-Web components are a way of composing isolated logic components of UI together. This is useful on the client-side, but is equally
-relevant on the server, where we often want to compose views together too.
+It would be fantastic to write websites like the above, render it on the server, and serve up your users a fully populated page the works in browsers from the dawn of time, takes no mountain of JS to run, renders at lightning speed, and that search engines and screen readers can effortlessly understand.
 
-Existing templating languages focus mostly on how data is bound to individual elements on the page, and composing together
-elements is something of an after thought. See Mustache's [partials](https://mustache.github.io/mustache.5.html#Partials),
-for example, which provide no isolation and no ability to parameterize their use whatsoever, or Mustache's
-[functions](https://github.com/janl/mustache.js/#functions) and Jade's [mixins](http://jade-lang.com/reference/mixins/),
-which can take basic parameters, but can only really provide basic string transformations. Templating libraries rarely let you
-introspect or interact with the rest of the content they're given, as web components can on the front-end. This simple but powerful
-change opens the possibility to compose together interacting & easily configurable components (see the motivating example above).
+Code like this is a pleasure to write, clicking abstractions together to build incredible applications at high-speed, but right now it happens only on the client side. If you render this server side though, you can get the power of this, and the benefits of just serving static HTML + CSS (and more JS too, if you like, to progressively enhance your site with extra interactivity as well).
 
-Fundamentally these limitations exist because templating libraries typically work purely on flat string. They're given content
-that often defines a clear structure (an HTML DOM hierarchy), but they rarely interpret and use that, throwing away the semantics
-and structure of what they're given.
+You can do this right now with Server Components. It's somewhere between a classic JavaScript framework (but much smaller, faster, simpler, and server-side) and a templating library (but much cleverer, more powerful and more flexible).
 
-This isn't everywhere: a few tools do do this somewhat better, but only with more heavy-weight approaches, almost entirely
-only on the client-side, and diverging substantially from the existing custom elements standard for this. That's all great
-if you want to commit to a big framework in which to build your huge single page app, but if you want an simple light-weight
-works-without-javascript easily-accessible fast way to build websites, you need a small standalone tool to render your page
-server-side. You don't need a whole front-end UI framework, with all the page weight and complexity that brings, just to be
-able to define and compose together a page of widgets.
-
-Server Components is solving this: it's a minimal tool to compose together your application UI on the server side.
-
-It doesn't dynamically build templates from data (although you can easily layer a typical templating language on top to do so). It
-doesn't allow any logic in templates whatsoever. It allows you to compose together components (who in turn can contain whatever
-logic internally they'd like).
-
-This is currently aiming to be structurally the same as front-end custom elements, with the minimal changes required
-to make this work in Node, outside the traditional DOM environment. In principle, this compatibility should mean you can take a
-server-side component and render it client-side with no changes (but this is early stages, there's some basic find/replace steps
-required right now, and generally YMMV).
+This doesn't end there though. The end goal of this is to provide an API so close to the client-side web component standard that it becomes easy to write components which work on both sides, enabling isomorphic JavaScript entirely on web standards. It's server side only for now, but watch this space.
 
 ## Caveats
 
-This is not attempting to polyfill HTML Imports (although it potentially could as an import mechanism in future? Interesting
-idea, not sure if that's important), Template tags (unnecessary; all DOM is inert server-side) or the Shadow DOM (technically
-challenging, and less useful server-side).
+Server Components is building on the Web Components specs, but really almost entirely the custom elements spec. HTML Imports are out of scope initially (although it's interesting to think about what that might look like on the server), template tags are supported but are unnecessary really since all DOM is inert here, and the Shadow DOM is challenging and less useful here, so not the main focus right now.
 
 Core DOM functionality now built on [Domino](https://github.com/fgnass/domino), so DOM manipulation comes with Domino's
-limitations (no issues so far though).
+limitations. File issues if you hit any of these, Domino is aiming to be an accurate representation of the full DOM spec, so there's any serious divergences should probably be fixable upstream.
 
-Full serious web-component compatible support is probably blocked on https://github.com/tmpvar/jsdom/issues/1030, and I
-expect JSDom performance will block using that for any serious use for quite a while. Domino perf is much better.
-
-IE 8 and earlier render unknown elements poorly, and will probably render the output of this badly. This is
-[solvable](https://blog.whatwg.org/supporting-new-elements-in-ie) in future (although it requires front-end JS), but isn't solved
-here quite yet.
+IE 8 and earlier render unknown elements poorly, and will probably render the output of this badly. This is [solvable by hand](https://blog.whatwg.org/supporting-new-elements-in-ie) (although it requires front-end JS), but isn't solved automatically for you here yet.
 
 ## Usage
 
+**Component definition**
+
 ```javascript
-// Define and register an element somewhere
+var components = require("server-components");
 
-var NewElement = serverComponents.newElement();
+// Get the prototype for a new element
+var NewElement = components.newElement();
 
+// When the element is created during DOM parsing, you can transform the HTML inside it.
+// This can be configurable too, either by setting attributes or adding HTML content
+// inside it or elsewhere in the page it can interact with. Elements can fire events
+// that other elements can receive to allow interactions, or even expose methods
+// or data that other elements in the page can access directly.
 NewElement.createdCallback = function () {
     this.innerHTML = "Hi there";
 };
 
-serverComponents.registerElement("my-new-element", { prototype: NewElement });
+// Register the element with an element name
+components.registerElement("my-new-element", { prototype: NewElement });
+```
 
-// Later, render an HTML document that references that element
+**Component usage**
 
-serverComponents.render(`
+```javascript
+var components = require("server-components");
+
+// Render the HTML, and receive a promise for the resulting HTML string.
+// The result is a promise because elements can render asynchronously, by returning
+// promises from their callbacks. This allows elements to render content from
+// external web services, your database, or anything else you can imagine.
+components.render(`
     <html>
     <head></head>
     <body>
         <my-new-element></my-new-element>
     </body>
     </html>
-`).then((output) => {
+`).then(function (output) {
     // Output = "<html><head></head><body><my-new-element>Hi there</my-new-element></body></html>"
 });
 ```
