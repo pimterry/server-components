@@ -20,7 +20,7 @@ We can fix this. We can take those same ideas and designs (critically, the key e
 
 Server Components is an attempt to do that, by supporting the Web Components spec (the W3C work pulling out the core magic of these frameworks into a standard) in server-side Node.js.
 
-### Example:
+#### Example:
 
 ```javascript
 <html>
@@ -80,7 +80,7 @@ IE 8 and earlier render unknown elements poorly, and will probably render the ou
 
 ## Usage
 
-**Component definition**
+#### Component definition
 
 ```javascript
 var components = require("server-components");
@@ -101,7 +101,7 @@ NewElement.createdCallback = function () {
 components.registerElement("my-new-element", { prototype: NewElement });
 ```
 
-**Component usage**
+#### Component usage
 
 ```javascript
 var components = require("server-components");
