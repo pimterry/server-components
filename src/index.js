@@ -4,7 +4,7 @@ var domino = require("domino");
 var validateElementName = require("validate-element-name");
 
 /**
- * The DOM object (ServerComponents.dom) exposes tradition DOM objects (normally globally available
+ * The DOM object (serverComponents.dom) exposes tradition DOM objects (normally globally available
  * in browsers) such as the CustomEvent and various HTMLElement classes, for your component
  * implementations.
  */
@@ -14,7 +14,7 @@ exports.dom = domino.impl;
  * Config properties holder.
  *
  * Plugins can add config on this (recommended to be use keys like
- * ServerComponents.plugin_name.key). This enables easy config access without having to require
+ * serverComponents.plugin_name.key). This enables easy config access without having to require
  * every plugin at the top-level that any sub-level component uses, and allows easy cross-plugin
  * config access as required.
  *
@@ -26,7 +26,7 @@ exports.config = { };
 /**
  * Creates a returns a new custom HTML element prototype, extending the HTMLElement prototype.
  *
- * Note that this does *not* register the element. To do that, call ServerComponents.registerElement
+ * Note that this does *not* register the element. To do that, call serverComponents.registerElement
  * with an element name, and options (typically including the prototype returned here as your
  * 'prototype' value).
  */

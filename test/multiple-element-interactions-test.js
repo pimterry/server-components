@@ -1,6 +1,6 @@
 var expect = require('chai').expect;
 
-var ServerComponents = require("../src/index.js");
+var serverComponents = require("../src/index.js");
 
 function body(content) {
     return "<html><head></head><body>" + content + "</body></html>";
@@ -9,15 +9,15 @@ function body(content) {
 describe("When multiple DOM elements are present", () => {
     describe("nested elements", () => {
         it("are rendered correctly", () => {
-            var PrefixedElement = ServerComponents.newElement();
+            var PrefixedElement = serverComponents.newElement();
             PrefixedElement.createdCallback = function () {
                 this.innerHTML = "prefix:" + this.innerHTML;
             };
-            ServerComponents.registerElement("prefixed-element", {
+            serverComponents.registerElement("prefixed-element", {
                 prototype: PrefixedElement
             });
 
-            return ServerComponents.render(body(
+            return serverComponents.render(body(
                 "<prefixed-element><prefixed-element>existing-content</prefixed-element></prefixed-element>"
             )).then((output) => {
                 expect(output).to.equal(body(
@@ -29,15 +29,15 @@ describe("When multiple DOM elements are present", () => {
 
     describe("parent elements", () => {
         it("can see child elements", () => {
-            var ChildCountElement = ServerComponents.newElement();
+            var ChildCountElement = serverComponents.newElement();
             ChildCountElement.createdCallback = function () {
                 var newNode = this.doc.createElement("div");
                 newNode.textContent = this.childNodes.length + " children";
                 this.insertBefore(newNode, this.firstChild);
             };
-            ServerComponents.registerElement("child-count", { prototype: ChildCountElement });
+            serverComponents.registerElement("child-count", { prototype: ChildCountElement });
 
-            return ServerComponents.render(body(
+            return serverComponents.render(body(
                 "<child-count><div>A child</div><div>Another child</div></child-count>"
             )).then((output) => {
                 expect(output).to.equal(body(
@@ -47,11 +47,11 @@ describe("When multiple DOM elements are present", () => {
         });
 
         it("can read attributes from custom child element's prototypes", () => {
-            var DataSource = ServerComponents.newElement();
+            var DataSource = serverComponents.newElement();
             DataSource.data = [1, 2, 3];
-            ServerComponents.registerElement("data-source", { prototype: DataSource });
+            serverComponents.registerElement("data-source", { prototype: DataSource });
 
-            var DataDisplayer = ServerComponents.newElement();
+            var DataDisplayer = serverComponents.newElement();
             DataDisplayer.createdCallback = function () {
                 return new Promise((resolve) => {
                     // Has to be async, as child node prototypes aren't set: http://stackoverflow.com/questions/36187227/
@@ -63,9 +63,9 @@ describe("When multiple DOM elements are present", () => {
                     }, 0);
                 });
             };
-            ServerComponents.registerElement("data-displayer", { prototype: DataDisplayer });
+            serverComponents.registerElement("data-displayer", { prototype: DataDisplayer });
 
-            return ServerComponents.render(body(
+            return serverComponents.render(body(
                 "<data-displayer><data-source></data-source></data-displayer>"
             )).then((output) => {
                 expect(output).to.equal(body(
@@ -75,7 +75,7 @@ describe("When multiple DOM elements are present", () => {
         });
 
         it("receive bubbling events from child elements", () => {
-            var EventRecorder = ServerComponents.newElement();
+            var EventRecorder = serverComponents.newElement();
             EventRecorder.createdCallback = function () {
                 var resultsNode = this.ownerDocument.createElement("p");
                 this.appendChild(resultsNode);
@@ -84,17 +84,17 @@ describe("When multiple DOM elements are present", () => {
                     resultsNode.innerHTML = "Event received";
                 });
             };
-            ServerComponents.registerElement("event-recorder", { prototype: EventRecorder });
+            serverComponents.registerElement("event-recorder", { prototype: EventRecorder });
 
-            var EventElement = ServerComponents.newElement();
+            var EventElement = serverComponents.newElement();
             EventElement.createdCallback = function () {
-                this.dispatchEvent(new ServerComponents.dom.CustomEvent('my-event', {
+                this.dispatchEvent(new serverComponents.dom.CustomEvent('my-event', {
                     bubbles: true
                 }));
             };
-            ServerComponents.registerElement("event-source", { prototype: EventElement });
+            serverComponents.registerElement("event-source", { prototype: EventElement });
 
-            return ServerComponents.render(body(
+            return serverComponents.render(body(
                 "<event-recorder><event-source></event-source></event-recorder>"
             )).then((output) => {
                 expect(output).to.equal(body(

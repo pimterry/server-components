@@ -1,6 +1,6 @@
 var expect = require('chai').expect;
 
-var ServerComponents = require("../src/index.js");
+var serverComponents = require("../src/index.js");
 
 function body(content) {
     return "<html><head></head><body>" + content + "</body></html>";
@@ -10,35 +10,35 @@ describe("Basic component functionality", () => {
     it("does nothing with vanilla HTML", () => {
         var input = body("<div></div>");
 
-        return ServerComponents.render(input).then((output) => {
+        return serverComponents.render(input).then((output) => {
             expect(output).to.equal(input);
         });
     });
 
     it("exposes a config object as .config", () => {
-        expect(ServerComponents.config).to.deep.equal({});
+        expect(serverComponents.config).to.deep.equal({});
     });
 
     it("replaces components with their rendered result", () => {
-        var NewElement = ServerComponents.newElement();
+        var NewElement = serverComponents.newElement();
         NewElement.createdCallback = function () { this.textContent = "hi there"; };
-        ServerComponents.registerElement("my-element", { prototype: NewElement });
+        serverComponents.registerElement("my-element", { prototype: NewElement });
 
-        return ServerComponents.render(body("<my-element></my-element>")).then((output) => {
+        return serverComponents.render(body("<my-element></my-element>")).then((output) => {
             expect(output).to.equal(body("<my-element>hi there</my-element>"));
         });
     });
 
     it("can wrap existing content", () => {
-        var PrefixedElement = ServerComponents.newElement();
+        var PrefixedElement = serverComponents.newElement();
         PrefixedElement.createdCallback = function () {
             this.innerHTML = "prefix:" + this.innerHTML;
         };
-        ServerComponents.registerElement("prefixed-element", {
+        serverComponents.registerElement("prefixed-element", {
             prototype: PrefixedElement
         });
 
-        return ServerComponents.render(body(
+        return serverComponents.render(body(
             "<prefixed-element>existing-content</prefixed-element>"
         )).then((output) => {
             expect(output).to.equal(
@@ -48,14 +48,14 @@ describe("Basic component functionality", () => {
     });
 
     it("allows attribute access", () => {
-        var BadgeElement = ServerComponents.newElement();
+        var BadgeElement = serverComponents.newElement();
         BadgeElement.createdCallback = function () {
             var name = this.getAttribute("name");
             this.innerHTML = "My name is: <div class='name'>" + name + "</div>";
         };
-        ServerComponents.registerElement("name-badge", { prototype: BadgeElement });
+        serverComponents.registerElement("name-badge", { prototype: BadgeElement });
 
-        return ServerComponents.render(
+        return serverComponents.render(
             body('<name-badge name="Tim Perry"></name-badge>')
         ).then((output) => {
             expect(output).to.equal(body(

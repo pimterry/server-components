@@ -103,17 +103,17 @@ here quite yet.
 ```javascript
 // Define and register an element somewhere
 
-var NewElement = ServerComponents.newElement();
+var NewElement = serverComponents.newElement();
 
 NewElement.createdCallback = function () {
     this.innerHTML = "Hi there";
 };
 
-ServerComponents.registerElement("my-new-element", { prototype: NewElement });
+serverComponents.registerElement("my-new-element", { prototype: NewElement });
 
 // Later, render an HTML document that references that element
 
-ServerComponents.render(`
+serverComponents.render(`
     <html>
     <head></head>
     <body>
@@ -146,7 +146,7 @@ ServerComponents.render(`
 - [ ] Allow rendering of document fragments (not just whole documents)
 - [ ] Support type extension elements
 - [ ] Document differences with real web components
-- [ ] Come up with easy patterns to build external easily registered custom element plugins (`ServerComponents.use(require('my-element'))`?)
+- [ ] Come up with easy patterns to build external easily registered custom element plugins (`serverComponents.use(require('my-element'))`?)
 - [ ] Make it easy to integrate server components with a data-binding templating library (e.g. mustache)
 - [ ] Make it easy to integrate with Express as a view engine
 - [ ] Write a selection of useful components to start with

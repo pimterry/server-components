@@ -1,6 +1,6 @@
 var expect = require('chai').expect;
 
-var ServerComponents = require("../src/index.js");
+var serverComponents = require("../src/index.js");
 
 function body(content) {
     return "<html><head></head><body>" + content + "</body></html>";
@@ -8,7 +8,7 @@ function body(content) {
 
 describe("An asynchronous element", () => {
     it("blocks rendering until they complete", () => {
-        var SlowElement = ServerComponents.newElement();
+        var SlowElement = serverComponents.newElement();
         SlowElement.createdCallback = function () {
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
@@ -17,19 +17,19 @@ describe("An asynchronous element", () => {
                 }, 1);
             });
         };
-        ServerComponents.registerElement("slow-element", { prototype: SlowElement });
+        serverComponents.registerElement("slow-element", { prototype: SlowElement });
 
-        return ServerComponents.render(body("<slow-element></slow-element>")).then((output) => {
+        return serverComponents.render(body("<slow-element></slow-element>")).then((output) => {
             expect(output).to.equal(body("<slow-element>loaded!</slow-element>"));
         });
     });
 
     it("throw an async error if a component fails to render synchronously", () => {
-        var FailingElement = ServerComponents.newElement();
+        var FailingElement = serverComponents.newElement();
         FailingElement.createdCallback = () => { throw new Error(); };
-        ServerComponents.registerElement("failing-element", { prototype: FailingElement });
+        serverComponents.registerElement("failing-element", { prototype: FailingElement });
 
-        return ServerComponents.render(
+        return serverComponents.render(
             body("<failing-element></failing-element>")
         ).then((output) => {
             throw new Error("Should not successfully render");
@@ -37,11 +37,11 @@ describe("An asynchronous element", () => {
     });
 
     it("throw an async error if a component fails to render asynchronously", () => {
-        var FailingElement = ServerComponents.newElement();
+        var FailingElement = serverComponents.newElement();
         FailingElement.createdCallback = () => Promise.reject(new Error());
-        ServerComponents.registerElement("failing-element", { prototype: FailingElement });
+        serverComponents.registerElement("failing-element", { prototype: FailingElement });
 
-        return ServerComponents.render(
+        return serverComponents.render(
             body("<failing-element></failing-element>")
         ).then((output) => {
             throw new Error("Should not successfully render");
