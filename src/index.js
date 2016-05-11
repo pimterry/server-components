@@ -11,19 +11,6 @@ var validateElementName = require("validate-element-name");
 exports.dom = domino.impl;
 
 /**
- * Config properties holder.
- *
- * Plugins can add config on this (recommended to be use keys like
- * serverComponents.plugin_name.key). This enables easy config access without having to require
- * every plugin at the top-level that any sub-level component uses, and allows easy cross-plugin
- * config access as required.
- *
- * Individual components should not use this for config, instead providing their own APIs. This is
- * intended to allow easy access to the data for general purpose cross-component configuration.
- */
-exports.config = { };
-
-/**
  * Creates a returns a new custom HTML element prototype, extending the HTMLElement prototype.
  *
  * Note that this does *not* register the element. To do that, call serverComponents.registerElement
