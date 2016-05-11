@@ -1,6 +1,6 @@
 # Server Components [![Travis Build Status](https://img.shields.io/travis/pimterry/server-components.svg)](https://travis-ci.org/pimterry/server-components) [![Join the chat at https://gitter.im/pimterry/server-components](https://badges.gitter.im/pimterry/server-components.svg)](https://gitter.im/pimterry/server-components?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Server Components are a simple, lightweight tool for Node.js HTML rendering, broadly following the [web components](http://www.html5rocks.com/en/tutorials/webcomponents/customelements/) browser specification, but on the server side.
+Server Components are a simple, lightweight tool for composable HTML rendering in Node.js, broadly following the [web components](http://www.html5rocks.com/en/tutorials/webcomponents/customelements/) browser specification, but on the server side.
 
 Composable flexible and powerful approaches to building web applications don't have to require heavyweight front-end JS frameworks, buildsteps, pre-compilers, and enormous downloads.
 
@@ -215,4 +215,5 @@ Everything you need should be installed after a clone and `npm install`. There's
 but they're managed just through NPM directly, take a look at the [package.json](package.json) for details.
 
 To test the project: `npm test`
+
 To watch the project locally and automatically run tests on changes: `npm run dev`
