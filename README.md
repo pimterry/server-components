@@ -105,7 +105,7 @@ NewElement.createdCallback = function () {
 components.registerElement("my-new-element", { prototype: NewElement });
 ```
 
-For examples of more complex component definitions, with explanations, take a look at [component-examples.md](component-examples.md)
+For examples of more complex component definitions, with explanations, take a look at the [example components](https://github.com/pimterry/server-components/blob/master/component-examples.md)
 
 #### Component usage
 
