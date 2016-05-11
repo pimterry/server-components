@@ -136,7 +136,7 @@ serverComponents.render(`
 - [x] Find a clean way to expose useful dom globals (e.g. Event/CustomEvent)
 - [x] Only allow components with '-' in the name (as on the front-end)
 - [x] Publish on NPM
-- [ ] Work out approaches for loading resources (CSS/images) from components ([PostCSS](https://github.com/outpunk/postcss-modules)?)
+- [x] Work out approaches for loading resources (CSS/images) from components ([PostCSS](https://github.com/outpunk/postcss-modules)?)
 - [ ] Document how to use this in detail
 - [ ] Move this TODO list to Github issues
 - [ ] Announce a bit, to get some feedback and traction
