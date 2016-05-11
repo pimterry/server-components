@@ -4,7 +4,7 @@ Server Components are a simple, lightweight tool for Node.js HTML rendering, bro
 
 Composable flexible and powerful approaches to building web applications don't have to require heavyweight front-end JS frameworks, buildsteps, pre-compilers, and enormous downloads.
 
-You can take the same ideas (and standards), apply them directly server side, to gain all that power without serving any of the page weight, without having to maintain all the complexity, and without breaking accessibility/SEO/client-side performance.
+You can take the same ideas (and standards), apply them directly server side, to gain all that power without *any* of the page weight, without having to maintain all the complexity, and without breaking accessibility/SEO/client-side performance.
 
 **Server Components is still in its early stages, and subject to change!** The core functionality is all in place and working though, and it should be stable and ready to play around with whenever you are.
 
@@ -180,11 +180,11 @@ These callbacks are called in opening tag order, so a parent's createdCallback i
 
 Called when the element is attached to the DOM. This is different to when it's created when your component is being built programmatically, not through HTML parsing. *Not yet implemented*
 
-#### `yourComponent.detachedCallback`
+#### `yourComponent.detachedCallback()`
 
 Called when the element is removed from the DOM. *Not yet implemented*
 
-#### `yourComponent.attributeChangedCallback`
+#### `yourComponent.attributeChangedCallback()`
 
 Called when an attribute of the element is added, changed, or removed. *Not yet implemented*.
 
@@ -192,33 +192,27 @@ Called when an attribute of the element is added, changed, or removed. *Not yet 
 
 ## Plugins
 
-TODO - Static, Express
+[Static](https://github.com/pimterry/server-components-static): Static file extension, making it easy to include references to external content in the resulting HTML, and providing a mapping to transform resource URLs used back to find the static content in their corresponding components later.
 
-## Progress
+[Express](https://github.com/pimterry/server-components-express): Express integration, automatically completely set up static file configuration for Express.
 
-- [x] Allow definition of components
-- [x] Render components, triggering the createdCallback and allowing component transformation
-- [x] Allow attribute access
-- [x] Allow asynchronous rendering
-- [x] Allow associating behaviour with component nodes
-- [x] Sensibly expose failures in components
-- [x] Find a clean way to expose useful dom globals (e.g. Event/CustomEvent)
-- [x] Only allow components with '-' in the name (as on the front-end)
-- [x] Publish on NPM
-- [x] Work out approaches for loading resources (CSS/images) from components ([PostCSS](https://github.com/outpunk/postcss-modules)?)
-- [x] Document how to use this in detail
-- [ ] Write some example components
-- [ ] Move this TODO list to Github issues
-- [ ] Announce a bit, to get some feedback and traction
-- [ ] Debug mode: enable per-component to log initial & resulting HTML and all DOM events
-- [ ] Check element.attributes behaviour is correct (and usable)
-- [ ] Allow programmatic component creation & trigger attachedCallbacks
-- [ ] Allow rendering of document fragments (not just whole documents)
-- [ ] Support type extension elements
-- [ ] Document differences with real web components
-- [ ] Come up with easy patterns to build external easily registered custom element plugins (`components.use(require('my-element'))`?)
-- [ ] Make it easy to integrate server components with a data-binding templating library (e.g. mustache)
-- [ ] Make it easy to integrate with Express as a view engine
-- [ ] Write a selection of useful components to start with
-- [ ] Tests with some common example implementation of existing web components
-- [ ] Create transparent front-end support (i.e. translate back to normal web components API internally)
+## Contributing
+
+It's great to hear you're interested in helping out!
+
+Right now the key thing is getting people using Server Components used in practice, and getting feedback
+on how well that works. If you're just keen generally, pick up Server Components and go try to build
+something quick yourself now.
+
+If you'd like to dive into more specific development anyway, take a look at the Huboard at
+https://huboard.com/pimterry/server-components/ to see the currently prioritised issues and their
+status. If you'd like to pick one up, add a quick note on the ticket that you're interested and outlining
+your approach, and then jump in!
+
+#### Building the project
+
+Everything you need should be installed after a clone and `npm install`. There's very few build scripts,
+but they're managed just through NPM directly, take a look at the [package.json](package.json) for details.
+
+To test the project: `npm test`
+To watch the project locally and automatically run tests on changes: `npm run dev`
