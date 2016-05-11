@@ -52,7 +52,7 @@ exports.registerElement = function registerElement(name, options) {
         throw new Error(`Registration failed for '${name}'. ${nameValidationResult.message}`);
     }
 
-    if (options) {
+    if (options && options.prototype) {
         registeredElements[name] = options.prototype;
     } else {
         registeredElements[name] = exports.newElement();
