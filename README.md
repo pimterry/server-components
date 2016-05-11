@@ -78,6 +78,10 @@ limitations. File issues if you hit any of these, Domino is aiming to be an accu
 
 IE 8 and earlier render unknown elements poorly, and will probably render the output of this badly. This is [solvable by hand](https://blog.whatwg.org/supporting-new-elements-in-ie) (although it requires front-end JS), but isn't solved automatically for you here yet.
 
+This is not intended to be used as an all encompassing framework, but as a tool for rendering a page. It's designed to compose together standalone chunks of HTML, nothing more. For any substantial application there will be steps that happen totally orthogonally to the resulting page structure (e.g. checking authentication, performing the action requested by the request, loading page-wide data), and trying to shoehorn those into server components will be painful for everybody.
+
+Instead, build general logic as normal, and once you're at the stage where the page-wide logic is compete and you simply have to glue everything together for the bits of your final page, break out the components. Use templating libraries like Mustache and friends to build your purely high-level HTML template with your data, and then use server components to render that HTML into the basic page HTML your users will actually see, letting individual components handling all the complexity behind that.
+
 ## Basic Usage
 
 #### Component definition
@@ -153,6 +157,8 @@ This is broadly equivalent to `document.registerElement` in browser land.
 Takes an HTML string, and returns a promise for the HTML string of the rendered result. Server components parses the HTML, and for each registered element within calls its various callbacks (see the Component API) below as it does so.
 
 Unrecognized elements are ignored. When calling the callbacks any returned promises are collected, and this call will not return until all returned promises have completed. If any promises are rejected, the render call will be rejected too.
+
+This currently only supports rendering full pages; if you provide an HTML fragment, it will be automatically wrapped in body and html tags, and given a head. Fragment support is coming soon: https://github.com/pimterry/server-components/issues/10
 
 #### `components.dom`
 
