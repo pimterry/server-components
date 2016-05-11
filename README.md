@@ -1,6 +1,6 @@
 # Server Components [![Travis Build Status](https://img.shields.io/travis/pimterry/server-components.svg)](https://travis-ci.org/pimterry/server-components) [![Join the chat at https://gitter.im/pimterry/server-components](https://badges.gitter.im/pimterry/server-components.svg)](https://gitter.im/pimterry/server-components?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Server Components are a simple, lightweight tool for Node.js server-side rendering, following the web components spec.
+Server Components are a simple, lightweight tool for Node.js HTML rendering, broadly following the [web components](http://www.html5rocks.com/en/tutorials/webcomponents/customelements/) browser specification, but on the server side.
 
 Composable flexible and powerful approaches to building web applications don't have to require heavyweight front-end JS frameworks, buildsteps, pre-compilers, and enormous downloads.
 
@@ -18,7 +18,7 @@ Tools like React, Ember, Angular and friends make building web pages a delight. 
 
 We can fix this. We can take those same ideas and designs (critically, the key element they all agree on: composing applications together from many standalone elements), and get the magic and maintainability on the server side too, without the costs.
 
-Server Components is an attempt to do that, by supporting the Web Components spec (the W3C work pulling out the core magic of these frameworks into a standard) in server-side Node.js.
+Server Components is an attempt to do that, by supporting the [Web Components spec](http://www.html5rocks.com/en/tutorials/webcomponents/customelements/) (the W3C work to pull out the core magic of these frameworks into an official standard), when rendering HTML in server-side Node.js.
 
 #### Example:
 
@@ -207,6 +207,7 @@ TODO - Static, Express
 - [x] Publish on NPM
 - [x] Work out approaches for loading resources (CSS/images) from components ([PostCSS](https://github.com/outpunk/postcss-modules)?)
 - [x] Document how to use this in detail
+- [ ] Write some example components
 - [ ] Move this TODO list to Github issues
 - [ ] Announce a bit, to get some feedback and traction
 - [ ] Debug mode: enable per-component to log initial & resulting HTML and all DOM events
