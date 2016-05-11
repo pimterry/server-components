@@ -3,6 +3,12 @@ var expect = require('chai').expect;
 var serverComponents = require("../src/index.js");
 
 describe("Custom element validation", () => {
+    it("allows elements without options", () => {
+        serverComponents.registerElement("my-element");
+
+        return serverComponents.render("<my-element></my-element");
+    });
+
     it("requires a non-empty name", () => {
         var InvalidElement = serverComponents.newElement();
         expect(() => {

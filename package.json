@@ -7,7 +7,7 @@
     "lint": "jshint . --exclude='node_modules' || exit 1",
     "test": "npm run lint && mocha test/",
     "dev": "watch 'npm run test -s' src/ test/",
-    
+
     "release:patch": "np patch",
     "release:minor": "np minor",
     "release:major": "np major"

@@ -52,7 +52,13 @@ exports.registerElement = function registerElement(name, options) {
         throw new Error(`Registration failed for '${name}'. ${nameValidationResult.message}`);
     }
 
-    registeredElements[name] = options.prototype;
+    if (options) {
+        registeredElements[name] = options.prototype;
+    } else {
+        registeredElements[name] = exports.newElement();
+    }
+
+    return registeredElements[name].constructor;
 };
 
 function recurseTree(rootNode, callback) {
