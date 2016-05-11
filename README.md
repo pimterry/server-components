@@ -132,7 +132,7 @@ components.render(`
 
 Creates a returns a new custom HTML element prototype, extending the HTMLElement prototype.
 
-Note that this does *not* register the element. To do that, call serverComponents.registerElement with an element name, and options (typically including the prototype returned here as your 'prototype' value).
+Note that this does *not* register the element. To do that, call `components.registerElement` with an element name, and options (typically including the prototype returned here as your 'prototype' value).
 
 This is broadly equivalent to `Object.create(HTMLElement.prototype)` in browser land, and exactly equivalent here to `Object.create(components.dom.HTMLElement.prototype)`. You can call that yourself instead if you like, but it's a bit of a mouthful.
 
@@ -216,7 +216,7 @@ TODO - Static, Express
 - [ ] Allow rendering of document fragments (not just whole documents)
 - [ ] Support type extension elements
 - [ ] Document differences with real web components
-- [ ] Come up with easy patterns to build external easily registered custom element plugins (`serverComponents.use(require('my-element'))`?)
+- [ ] Come up with easy patterns to build external easily registered custom element plugins (`components.use(require('my-element'))`?)
 - [ ] Make it easy to integrate server components with a data-binding templating library (e.g. mustache)
 - [ ] Make it easy to integrate with Express as a view engine
 - [ ] Write a selection of useful components to start with

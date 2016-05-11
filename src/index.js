@@ -4,7 +4,7 @@ var domino = require("domino");
 var validateElementName = require("validate-element-name");
 
 /**
- * The DOM object (serverComponents.dom) exposes tradition DOM objects (normally globally available
+ * The DOM object (components.dom) exposes tradition DOM objects (normally globally available
  * in browsers) such as the CustomEvent and various HTMLElement classes, for your component
  * implementations.
  */
@@ -13,7 +13,7 @@ exports.dom = domino.impl;
 /**
  * Creates a returns a new custom HTML element prototype, extending the HTMLElement prototype.
  *
- * Note that this does *not* register the element. To do that, call serverComponents.registerElement
+ * Note that this does *not* register the element. To do that, call components.registerElement
  * with an element name, and options (typically including the prototype returned here as your
  * 'prototype' value).
  */
