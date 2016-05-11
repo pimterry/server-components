@@ -78,7 +78,7 @@ limitations. File issues if you hit any of these, Domino is aiming to be an accu
 
 IE 8 and earlier render unknown elements poorly, and will probably render the output of this badly. This is [solvable by hand](https://blog.whatwg.org/supporting-new-elements-in-ie) (although it requires front-end JS), but isn't solved automatically for you here yet.
 
-## Usage
+## Basic Usage
 
 #### Component definition
 
@@ -101,6 +101,8 @@ NewElement.createdCallback = function () {
 components.registerElement("my-new-element", { prototype: NewElement });
 ```
 
+For examples of more complex component definitions, with explanations, take a look at [component-examples.md](component-examples.md) (TODO)
+
 #### Component usage
 
 ```javascript
@@ -122,6 +124,76 @@ components.render(`
 });
 ```
 
+## API Documentation
+
+### Top-level API
+
+#### `components.newElement()`
+
+Creates a returns a new custom HTML element prototype, extending the HTMLElement prototype.
+
+Note that this does *not* register the element. To do that, call serverComponents.registerElement with an element name, and options (typically including the prototype returned here as your 'prototype' value).
+
+This is broadly equivalent to `Object.create(HTMLElement.prototype)` in browser land, and exactly equivalent here to `Object.create(components.dom.HTMLElement.prototype)`. You can call that yourself instead if you like, but it's a bit of a mouthful.
+
+#### `components.registerElement(componentName, options)`
+
+Registers an element, so that it will be used when the given element name is found during parsing.
+
+Element names are required to contain a hyphen (to disambiguate them from existing element names), be entirely lower-case, and not start with a hyphen.
+
+The only option currently supported is 'prototype', which sets the prototype of the given element. This prototype will have its various callbacks called when it is found during document parsing, and properties of the prototype will be exposed within the DOM to other elements there in turn.
+
+This returns the constructor for the new element, so you can construct and insert them into the DOM programmatically if desired.
+
+This is broadly equivalent to `document.registerElement` in browser land.
+
+#### `components.render(html)`
+
+Takes an HTML string, and returns a promise for the HTML string of the rendered result. Server components parses the HTML, and for each registered element within calls its various callbacks (see the Component API) below as it does so.
+
+Unrecognized elements are ignored. When calling the callbacks any returned promises are collected, and this call will not return until all returned promises have completed. If any promises are rejected, the render call will be rejected too.
+
+#### `components.dom`
+
+The DOM object (components.dom) exposes tradition DOM objects (normally globally available in browsers) such as the CustomEvent and various HTMLElement classes, typically use inside your component implementations.
+
+This is (very) broadly equivalent to `window` in browser land.
+
+### Component API
+
+These methods are methods you can implement on your component prototype (as returned by `newElement`) before registering your element with `registerElement`. Implementing every method here is optional.
+
+Any methods that are implemented, from this selection or otherwise, will be exposed on your element in the DOM during rendering. I.e. you can call `document.querySelector("my-element").setTitle("New Title")` and to call the `setTitle` method on your object, which can then potentially change how your component is rendered.
+
+#### `yourComponent.createdCallback()`
+
+Called when an element is created, with `this` set as the element itself. If you need the document you're being rendered into, use `this.ownerDocument`.
+
+**This is where you put your magic!** Rewrite the elements contents to dynamically generate what your users will actually see client side. Read configuration from attributes or the initial child nodes to create flexible reconfigurable reusable elements. Register for events to create elements that interact with the rest of the application structure. Build your page.
+
+If this callback returns a promise, the rendering process will not resolve until that promise does, and will fail if that promise fails. You can use this to perform asynchronous actions without your component definitions. Pull tweets from twitter and draw them into the page, or anything else you can imagine.
+
+These callbacks are called in opening tag order, so a parent's createdCallback is called, then each of its children's, then its next sibling element.
+
+#### `yourComponent.attachedCallback()`
+
+Called when the element is attached to the DOM. This is different to when it's created when your component is being built programmatically, not through HTML parsing. *Not yet implemented*
+
+#### `yourComponent.detachedCallback`
+
+Called when the element is removed from the DOM. *Not yet implemented*
+
+#### `yourComponent.attributeChangedCallback`
+
+Called when an attribute of the element is added, changed, or removed. *Not yet implemented*.
+
+**So far only the createdCallback is implemented here, as the others are less relevant initially for the key simpler cases. Each of those will be coming in time though! Watch this space.**
+
+## Plugins
+
+TODO - Static, Express
+
 ## Progress
 
 - [x] Allow definition of components
@@ -134,7 +206,7 @@ components.render(`
 - [x] Only allow components with '-' in the name (as on the front-end)
 - [x] Publish on NPM
 - [x] Work out approaches for loading resources (CSS/images) from components ([PostCSS](https://github.com/outpunk/postcss-modules)?)
-- [ ] Document how to use this in detail
+- [x] Document how to use this in detail
 - [ ] Move this TODO list to Github issues
 - [ ] Announce a bit, to get some feedback and traction
 - [ ] Debug mode: enable per-component to log initial & resulting HTML and all DOM events
