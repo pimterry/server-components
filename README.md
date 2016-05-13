@@ -15,9 +15,9 @@ You can take the same ideas (and standards), apply them directly server side, to
 #### [Setup](#setting-it-up)
 #### [API docs](#api-documentation)
 #### [Why?](#why-does-this-exist)
-#### [Caveats](#caveats)
-#### [Plugins](#plugins)
-#### [Contributing](#contributing)
+#### [Caveats](#some-caveats)
+#### [Plugins](#existing-plugins)
+#### [Contributing](#how-to-contribute)
 
 ## Basic Usage
 
@@ -208,7 +208,7 @@ You can do this right now with Server Components. It's somewhere between a class
 
 This doesn't end there though. The end goal of this is to provide an API so close to the client-side web component standard that it becomes easy to write components which work on both sides, enabling isomorphic JavaScript entirely on web standards. It's server side only for now, but watch this space.
 
-## Caveats
+## Some Caveats
 
 Server Components is building on the Web Components specs, but really almost entirely the custom elements spec. HTML Imports are out of scope initially (although it's interesting to think about what that might look like on the server), template tags are supported but are unnecessary really since all DOM is inert here, and the Shadow DOM is challenging and less useful here, so not the main focus right now.
 
@@ -221,13 +221,15 @@ This is not intended to be used as an all encompassing framework, but as a tool 
 
 Instead, build general logic as normal, and once you're at the stage where the page-wide logic is compete and you simply have to glue everything together for the bits of your final page, break out the components. Use templating libraries like Mustache and friends to build your purely high-level HTML template with your data, and then use server components to render that HTML into the basic page HTML your users will actually see, letting individual components handling all the complexity behind that.
 
-## Plugins
+## Existing Plugins
 
 [Static](https://github.com/pimterry/server-components-static): Static file extension, making it easy to include references to external content in the resulting HTML, and providing a mapping to transform resource URLs used back to find the static content in their corresponding components later.
 
 [Express](https://github.com/pimterry/server-components-express): Express integration, automatically completely set up static file configuration for Express.
 
-## Contributing
+Writing more plugins to make it easy to integrate Server Components with other tools, and to help enable other useful patterns would be fantastic. If you write one, feel free to file a pull request on this repository to add it to the list.
+
+## How to Contribute
 
 It's great to hear you're interested in helping out!
 
