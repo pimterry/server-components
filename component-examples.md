@@ -115,6 +115,22 @@ TODO: A component that queries twitter, and renders the output to the page
 
 `<recent-tweets max=10></recent-tweets>`
 
+## Including client-side content
+
+TODO: An element that renders social media icons, from  its own set of bundled icons
+
+`<social-media-icons twitter="pimterry"></social-media-icons>`
+
+becomes
+
+```html
+<social-media-icons twitter="pimterry">
+  <a href="http://twitter.com/pimterry">
+    <img src="/components/social-media-icons/twitter.png" alt="My Twitter" />
+  </a>
+</social-media-icons>
+
+
 ## Element interactions through DOM properties
 
 TODO: A component that renders a table of contents from the headings on the page
