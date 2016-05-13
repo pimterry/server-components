@@ -2,6 +2,10 @@
 
 This page is a series of examples of increasing levels of complexity of component.
 
+This list is still a work in progress, with broad outlines for functionality in some cases rather than completed examples. Every example in here is very buildable though right now, and the full examples will fill out here shortly.
+
+Have a minute? Have a go at building one of the extras and filling this out yourself!
+
 ## Static rendering
 
 The simplest web component just acts as a simple placeholder for some static content.
@@ -72,13 +76,38 @@ becomes
 
 ## Parameterising components via content
 
-TODO: A component that takes some text content, and turns every URL within into a link
+Components can be parameterized in all sorts of ways. One interesting pattern is to wrap some normal HTML content in a component, and use that to transform the content.
 
-`<linkify-urls>Have you heard of www.facebook.com?</linkify-urls>`
+For example, you might want a component that wraps HTML, parses all the text within, and replaces URL strings with actual links (using the excellent [Linkify library](https://github.com/SoapBox/linkifyjs), but here in a server side DOM, not a real one):
 
-becomes
+```javascript
+var components = require("server-components");
+var linkify = require("linkifyjs/element");
 
-`<linkify-urls>Have you heard of <a href="http://www.facebook.com">www.facebook.com</a>?</linkify-urls>`
+var LinkifyElement = components.newElement();
+
+LinkifyElement.createdCallback = function (document) {
+    // Delegate the whole thing to a real normal front-end library!
+    linkify(this, { target: () => null, linkClass: "autolinked" }, document);
+ };
+
+components.registerElement("linkify-urls", { prototype: LinkifyElement });
+```
+
+With this, we can pass HTML into Server Components that looks like
+
+```html
+<linkify-urls>Have you heard of www.facebook.com?</linkify-urls>
+```
+
+and then serve up to our users:
+
+```html
+<linkify-urls>
+    Have you heard of
+    <a href="http://www.facebook.com" class="autolinked">www.facebook.com</a>?
+</linkify-urls>
+```
 
 ## Loading external data
 
