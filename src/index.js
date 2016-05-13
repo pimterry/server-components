@@ -88,7 +88,7 @@ exports.renderFragment = function render(input) {
 function renderNode(rootNode) {
     let createdPromises = [];
 
-    stubMissingDocumentMethods(rootNode);
+    var document = getDocument(rootNode);
 
     recurseTree(rootNode, (foundNode) => {
         if (foundNode.tagName) {
@@ -99,7 +99,7 @@ function renderNode(rootNode) {
                 Object.setPrototypeOf(foundNode, customElement);
                 if (customElement.createdCallback) {
                     createdPromises.push(new Promise((resolve) => {
-                        resolve(customElement.createdCallback.call(foundNode, rootNode));
+                        resolve(customElement.createdCallback.call(foundNode, document));
                     }));
                 }
             }
@@ -111,11 +111,46 @@ function renderNode(rootNode) {
 
 /**
  * If rootNode is not a real document (e.g. while rendering a fragment), then some methods such as
- * createElement are not available. In this case, we proxy these through to the real page document,
- * to pretend that you're always rendering your content within a full document.
+ * createElement are not available. This method ensures you have a document equivalent object: if
+ * you call normal document methods on it (createElement, querySelector, etc) you'll get what you
+ * expect.
+ *
+ * That means methods independent of page hierarchy, especially those that are only present on
+ * the true document object (createElement), should be called on the real document, and methods that
+ * care about document hierarchy (querySelectorAll, getElementById) should be scope to the given node.
  */
-function stubMissingDocumentMethods(rootNode) {
-    var document = rootNode.ownerDocument;
+function getDocument(rootNode) {
+    // Only real documents have a null ownerDocument
+    if (rootNode.ownerDocument === null) return rootNode;
 
-    if (!rootNode.createElement) rootNode.createElement = document.createElement.bind(document);
+    else {
+        let document = rootNode.ownerDocument;
+
+        var documentMethods = [
+            'compatMode',
+            'createTextNode',
+            'createComment',
+            'createDocumentFragment',
+            'createProcessingInstruction',
+            'createElement',
+            'createElementNS',
+            'createEvent',
+            'createTreeWalker',
+            'createNodeIterator',
+            'location',
+            'title',
+            'onabort',
+            'onreadystatechange',
+            'onerror',
+            'onload',
+        ];
+
+        documentMethods.forEach((propertyName) => {
+            var property = document[propertyName];
+            if (typeof(property) === 'function') property = property.bind(document);
+            rootNode[propertyName] = property;
+        });
+
+        return rootNode;
+    }
 }
