@@ -53,7 +53,7 @@ var components = require("server-components");
 // The result is a promise because elements can render asynchronously, by returning
 // promises from their callbacks. This allows elements to render content from
 // external web services, your database, or anything else you can imagine.
-components.render(`
+components.renderPage(`
     <html>
     <head></head>
     <body>
