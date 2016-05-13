@@ -2,10 +2,6 @@ var expect = require('chai').expect;
 
 var components = require("../src/index.js");
 
-function body(content) {
-    return "<html><head></head><body>" + content + "</body></html>";
-}
-
 describe("An asynchronous element", () => {
     it("blocks rendering until they complete", () => {
         var SlowElement = components.newElement();
@@ -19,8 +15,8 @@ describe("An asynchronous element", () => {
         };
         components.registerElement("slow-element", { prototype: SlowElement });
 
-        return components.render(body("<slow-element></slow-element>")).then((output) => {
-            expect(output).to.equal(body("<slow-element>loaded!</slow-element>"));
+        return components.renderFragment("<slow-element></slow-element>").then((output) => {
+            expect(output).to.equal("<slow-element>loaded!</slow-element>");
         });
     });
 
@@ -29,8 +25,8 @@ describe("An asynchronous element", () => {
         FailingElement.createdCallback = () => { throw new Error(); };
         components.registerElement("failing-element", { prototype: FailingElement });
 
-        return components.render(
-            body("<failing-element></failing-element>")
+        return components.renderFragment(
+            "<failing-element></failing-element>"
         ).then((output) => {
             throw new Error("Should not successfully render");
         }).catch(() => { /* All good. */ });
@@ -41,8 +37,8 @@ describe("An asynchronous element", () => {
         FailingElement.createdCallback = () => Promise.reject(new Error());
         components.registerElement("failing-element", { prototype: FailingElement });
 
-        return components.render(
-            body("<failing-element></failing-element>")
+        return components.renderFragment(
+            "<failing-element></failing-element>"
         ).then((output) => {
             throw new Error("Should not successfully render");
         }).catch(() => { /* All good */ });

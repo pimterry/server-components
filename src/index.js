@@ -59,26 +59,63 @@ function recurseTree(rootNode, callback) {
  * Take a string of HTML input, and render it into a full page, handling any custom elements found
  * within, and returning a promise for the resulting string of HTML.
  */
-exports.render = function render(input) {
-    let doc = domino.createDocument(input);
+exports.renderPage = function renderPage(input) {
+    let document = domino.createDocument(input);
+    return renderNode(document).then((renderedDocument) => renderedDocument.outerHTML);
+};
 
+/**
+ * Take a string of HTML input, and render as a page fragment, handling any custom elements found
+ * within, and returning a promise for the resulting string of HTML. Any full page content (<html>
+ * and <body> tags) will be stripped.
+ */
+exports.renderFragment = function render(input) {
+    let document = domino.createDocument();
+    var template = document.createElement("template");
+    // Id added for clarity, as this template is potentially visible
+    // from JS running within, if it attempts to search its parent.
+    template.id = "server-components-fragment-wrapper";
+    template.innerHTML = input;
+
+    return renderNode(template.content).then((template) => template.innerHTML);
+};
+
+/**
+ * Takes a full Domino node object. Traverses within it and renders all the custom elements found.
+ * Returns a promise for the document object itself, resolved when every custom element has
+ * resolved, and rejected if any of them are rejected.
+ */
+function renderNode(rootNode) {
     let createdPromises = [];
 
-    recurseTree(doc, (node) => {
-        if (node.tagName) {
-            let nodeType = node.tagName.toLowerCase();
+    stubMissingDocumentMethods(rootNode);
+
+    recurseTree(rootNode, (foundNode) => {
+        if (foundNode.tagName) {
+            let nodeType = foundNode.tagName.toLowerCase();
             let customElement = registeredElements[nodeType];
             if (customElement) {
                 // TODO: Should probably clone node, not change prototype, for performance
-                Object.setPrototypeOf(node, customElement);
+                Object.setPrototypeOf(foundNode, customElement);
                 if (customElement.createdCallback) {
                     createdPromises.push(new Promise((resolve) => {
-                        resolve(customElement.createdCallback.call(node));
+                        resolve(customElement.createdCallback.call(foundNode, rootNode));
                     }));
                 }
             }
         }
     });
 
-    return Promise.all(createdPromises).then(() => doc.documentElement.outerHTML);
-};
+    return Promise.all(createdPromises).then(() => rootNode);
+}
+
+/**
+ * If rootNode is not a real document (e.g. while rendering a fragment), then some methods such as
+ * createElement are not available. In this case, we proxy these through to the real page document,
+ * to pretend that you're always rendering your content within a full document.
+ */
+function stubMissingDocumentMethods(rootNode) {
+    var document = rootNode.ownerDocument;
+
+    if (!rootNode.createElement) rootNode.createElement = document.createElement.bind(document);
+}

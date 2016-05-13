@@ -2,15 +2,11 @@ var expect = require('chai').expect;
 
 var components = require("../src/index.js");
 
-function body(content) {
-    return "<html><head></head><body>" + content + "</body></html>";
-}
-
 describe("Basic component functionality", () => {
     it("does nothing with vanilla HTML", () => {
-        var input = body("<div></div>");
+        var input = "<div></div>";
 
-        return components.render(input).then((output) => {
+        return components.renderFragment(input).then((output) => {
             expect(output).to.equal(input);
         });
     });
@@ -20,8 +16,8 @@ describe("Basic component functionality", () => {
         NewElement.createdCallback = function () { this.textContent = "hi there"; };
         components.registerElement("my-element", { prototype: NewElement });
 
-        return components.render(body("<my-element></my-element>")).then((output) => {
-            expect(output).to.equal(body("<my-element>hi there</my-element>"));
+        return components.renderFragment("<my-element></my-element>").then((output) => {
+            expect(output).to.equal("<my-element>hi there</my-element>");
         });
     });
 
@@ -34,13 +30,11 @@ describe("Basic component functionality", () => {
             prototype: PrefixedElement
         });
 
-        return components.render(body(
+        return components.renderFragment(
             "<prefixed-element>existing-content</prefixed-element>"
-        )).then((output) => {
-            expect(output).to.equal(
-                body("<prefixed-element>prefix:existing-content</prefixed-element>")
-            );
-        });
+        ).then((output) => expect(output).to.equal(
+            "<prefixed-element>prefix:existing-content</prefixed-element>"
+        ));
     });
 
     it("allows attribute access", () => {
@@ -51,12 +45,42 @@ describe("Basic component functionality", () => {
         };
         components.registerElement("name-badge", { prototype: BadgeElement });
 
-        return components.render(
-            body('<name-badge name="Tim Perry"></name-badge>')
-        ).then((output) => {
-            expect(output).to.equal(body(
-                '<name-badge name="Tim Perry">My name is: <div class="name">Tim Perry</div></name-badge>'
-            ));
+        return components.renderFragment(
+            '<name-badge name="Tim Perry"></name-badge>'
+        ).then((output) => expect(output).to.equal(
+            '<name-badge name="Tim Perry">My name is: <div class="name">Tim Perry</div></name-badge>'
+        ));
+    });
+
+    it("can use normal document methods like QuerySelector", () => {
+        var SelfFindingElement = components.newElement();
+        SelfFindingElement.createdCallback = function (document) {
+            var hopefullyThis = document.querySelector("self-finding-element");
+            if (hopefullyThis === this) this.innerHTML = "Found!";
+            else this.innerHTML = "Not found, found " + hopefullyThis;
+        };
+        components.registerElement("self-finding-element", { prototype: SelfFindingElement });
+
+        return components.renderFragment(
+            '<self-finding-element></self-finding-element>'
+        ).then((output) => expect(output).to.equal(
+            '<self-finding-element>Found!</self-finding-element>'
+        ));
+    });
+
+    it("wraps content in valid page content, if rendering a page", () => {
+        return components.renderPage("<empty-div></empty-div>").then((output) => {
+            expect(output).to.equal(
+                "<html><head></head><body><empty-div></empty-div></body></html>"
+            );
+        });
+    });
+
+    it("strips <html>, <head> and <body> tags, if only rendering a fragment", () => {
+        return components.renderFragment("<html><body><empty-div><head></head></empty-div></body></html>").then((output) => {
+            expect(output).to.equal(
+                "<empty-div></empty-div>"
+            );
         });
     });
 });

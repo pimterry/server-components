@@ -103,17 +103,25 @@ This returns the constructor for the new element, so you can construct and inser
 
 This is broadly equivalent to `document.registerElement` in browser land.
 
-#### `components.render(html)`
+#### `components.renderPage(html)`
 
-Takes an HTML string, and returns a promise for the HTML string of the rendered result. Server components parses the HTML, and for each registered element within calls its various callbacks (see the Component API) below as it does so.
+Takes an HTML string for a full page, and returns a promise for the HTML string of the rendered result. Server Components parses the HTML, and for each registered element within calls its various callbacks (see the Component API) below as it does so.
 
-Unrecognized elements are ignored. When calling the callbacks any returned promises are collected, and this call will not return until all returned promises have completed. If any promises are rejected, the render call will be rejected too.
+Unrecognized elements are left unchanged. When calling custom element callbacks any returned promises are collected, and this call will not return until all these promises have completed. If any promises are rejected, this renderPage call will be rejected too.
 
-This currently only supports rendering full pages; if you provide an HTML fragment, it will be automatically wrapped in body and html tags, and given a head. Fragment support is coming soon: https://github.com/pimterry/server-components/issues/10
+To support the full DOM Document API, this method requires that you are rendering a full page (including `<html>`, `<head>` and `<body>` tags). If you don't pass in content wrapped in those tags then they'll be automatically added, ensuring your resulting HTML has a full valid page structure. If that's not what you want, take a look at `renderFragment` below.
+
+#### `components.renderFragment(html)`
+
+Takes an HTML string for part of a page, and returns a promise for the HTML string of the rendered result. Server Components parses the HTML, and for each registered element within calls its various callbacks (see the Component API) below as it does so.
+
+Unrecognized elements are left unchanged. When calling custom element callbacks any returned promises are collected, and this call will not return until all these promises have completed. If any promises are rejected, this renderFragment call will be rejected too.
+
+This method renders the content as a [Document Fragment](https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment), a sub-part of a full document. This means if you there are any `<html>`, `<head>` or `<body>` tags in your input, they'll be stripped, as they're not legal within a fragment of a document. Note that this means the provided `document` object in your components will actually be a `DocumentFragment`, not a true `Document` object (although in most cases you can merrily ignore this). If you want to render a full page, take a look at `renderPage` above.
 
 #### `components.dom`
 
-The DOM object (components.dom) exposes tradition DOM objects (normally globally available in browsers) such as the CustomEvent and various HTMLElement classes, typically use inside your component implementations.
+The DOM object (components.dom) exposes traditional DOM objects (normally globally available in browsers) such as the CustomEvent and various HTMLElement classes, typically use inside your component implementations.
 
 This is (very) broadly equivalent to `window` in browser land.
 
@@ -123,25 +131,27 @@ These methods are methods you can implement on your component prototype (as retu
 
 Any methods that are implemented, from this selection or otherwise, will be exposed on your element in the DOM during rendering. I.e. you can call `document.querySelector("my-element").setTitle("New Title")` and to call the `setTitle` method on your object, which can then potentially change how your component is rendered.
 
-#### `yourComponent.createdCallback()`
+#### `yourComponent.createdCallback(document)`
 
-Called when an element is created, with `this` set as the element itself. If you need the document you're being rendered into, use `this.ownerDocument`.
+Called when an element is created.
 
 **This is where you put your magic!** Rewrite the elements contents to dynamically generate what your users will actually see client side. Read configuration from attributes or the initial child nodes to create flexible reconfigurable reusable elements. Register for events to create elements that interact with the rest of the application structure. Build your page.
+
+This method is called with `this` bound to the element that's being rendered (just like in browser-land). The `document` object that would normally be available as a global in the browser is instead passed as an argument here for convenience (useful if you want to use `document.querySelectorAll` and friends). Note that if you're rendering with `renderFragment` instead of `renderPage` this will be a DocumentFragment, not a Document, although in almost all cases you can safely ignore this.
 
 If this callback returns a promise, the rendering process will not resolve until that promise does, and will fail if that promise fails. You can use this to perform asynchronous actions without your component definitions. Pull tweets from twitter and draw them into the page, or anything else you can imagine.
 
 These callbacks are called in opening tag order, so a parent's createdCallback is called, then each of its children's, then its next sibling element.
 
-#### `yourComponent.attachedCallback()`
+#### `yourComponent.attachedCallback(document)`
 
 Called when the element is attached to the DOM. This is different to when it's created when your component is being built programmatically, not through HTML parsing. *Not yet implemented*
 
-#### `yourComponent.detachedCallback()`
+#### `yourComponent.detachedCallback(document)`
 
 Called when the element is removed from the DOM. *Not yet implemented*
 
-#### `yourComponent.attributeChangedCallback()`
+#### `yourComponent.attributeChangedCallback(document)`
 
 Called when an attribute of the element is added, changed, or removed. *Not yet implemented*.
 

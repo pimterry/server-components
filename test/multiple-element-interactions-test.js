@@ -2,10 +2,6 @@ var expect = require('chai').expect;
 
 var components = require("../src/index.js");
 
-function body(content) {
-    return "<html><head></head><body>" + content + "</body></html>";
-}
-
 describe("When multiple DOM elements are present", () => {
     describe("nested elements", () => {
         it("are rendered correctly", () => {
@@ -17,12 +13,12 @@ describe("When multiple DOM elements are present", () => {
                 prototype: PrefixedElement
             });
 
-            return components.render(body(
+            return components.renderFragment(
                 "<prefixed-element><prefixed-element>existing-content</prefixed-element></prefixed-element>"
-            )).then((output) => {
-                expect(output).to.equal(body(
+            ).then((output) => {
+                expect(output).to.equal(
                     "<prefixed-element>prefix:<prefixed-element>prefix:existing-content</prefixed-element></prefixed-element>"
-                ));
+                );
             });
         });
     });
@@ -37,12 +33,12 @@ describe("When multiple DOM elements are present", () => {
             };
             components.registerElement("child-count", { prototype: ChildCountElement });
 
-            return components.render(body(
+            return components.renderFragment(
                 "<child-count><div>A child</div><div>Another child</div></child-count>"
-            )).then((output) => {
-                expect(output).to.equal(body(
+            ).then((output) => {
+                expect(output).to.equal(
                     "<child-count><div>2 children</div><div>A child</div><div>Another child</div></child-count>"
-                ));
+                );
             });
         });
 
@@ -65,19 +61,19 @@ describe("When multiple DOM elements are present", () => {
             };
             components.registerElement("data-displayer", { prototype: DataDisplayer });
 
-            return components.render(body(
+            return components.renderFragment(
                 "<data-displayer><data-source></data-source></data-displayer>"
-            )).then((output) => {
-                expect(output).to.equal(body(
+            ).then((output) => {
+                expect(output).to.equal(
                     "<data-displayer>Data: [1,2,3]</data-displayer>"
-                ));
+                );
             });
         });
 
         it("receive bubbling events from child elements", () => {
             var EventRecorder = components.newElement();
-            EventRecorder.createdCallback = function () {
-                var resultsNode = this.ownerDocument.createElement("p");
+            EventRecorder.createdCallback = function (document) {
+                var resultsNode = document.createElement("p");
                 this.appendChild(resultsNode);
 
                 this.addEventListener("my-event", (event) => {
@@ -94,12 +90,12 @@ describe("When multiple DOM elements are present", () => {
             };
             components.registerElement("event-source", { prototype: EventElement });
 
-            return components.render(body(
+            return components.renderFragment(
                 "<event-recorder><event-source></event-source></event-recorder>"
-            )).then((output) => {
-                expect(output).to.equal(body(
+            ).then((output) => {
+                expect(output).to.equal(
                     "<event-recorder><event-source></event-source><p>Event received</p></event-recorder>"
-                ));
+                );
             });
         });
     });

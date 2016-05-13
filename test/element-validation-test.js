@@ -6,7 +6,7 @@ describe("Custom element validation", () => {
     it("allows elements without options", () => {
         components.registerElement("my-element");
 
-        return components.render("<my-element></my-element");
+        return components.renderFragment("<my-element></my-element");
     });
 
     it("requires a non-empty name", () => {
