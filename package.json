@@ -45,5 +45,8 @@
   "jshintConfig": {
     "esversion": 6,
     "node": true
+  },
+  "engines": {
+    "node": ">= 4.0.0"
   }
 }
