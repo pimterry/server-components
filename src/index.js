@@ -48,10 +48,76 @@ exports.registerElement = function registerElement(name, options) {
     return registeredElements[name].constructor;
 };
 
-function recurseTree(rootNode, callback) {
-    for (let node of rootNode.childNodes) {
-        callback(node);
-        recurseTree(node, callback);
+/**
+ * Registers an element that is intended to run server-side only, and thus
+ * replaced with a resolved value or nothing.
+ *
+ * Server-side elements ARE NOT required to contain a hyphen.
+ */
+exports.registerServerElement = function registerServerElement(name, handler) {
+    if ( registeredElements[name] && typeof registeredElements[name] !== 'function' ) {
+        throw new Error(`Registration failed for '${name}'. Name is already taken by a non-server-side element.`);
+    }
+    registeredElements[name] = handler;
+    return handler;
+};
+
+
+
+function transformTree(document, currentNode, callback) {
+
+    var task = callback(currentNode);
+
+    if ( task !== undefined ) {
+        let replaceNode = function replaceNode (results) {
+            if (results === null) {
+                currentNode.parentNode.removeChild(currentNode)
+                return Promise.resolve()
+            }
+            if (typeof results === 'string') {
+                var temp = document.createElement('template');
+                temp.innerHTML = results;
+                results = temp.content.childNodes;
+            }
+            if (results) {
+                var fragment = document.createDocumentFragment();
+                var newNodes = results.length ? slice.call(results) : [results];
+
+                newNodes.map( (newNode) => {
+                    newNode.parentNode === currentNode && currentNode.removeChild(newNode);
+                    fragment.appendChild(newNode);
+                });
+                currentNode.parentNode.replaceChild(fragment, currentNode);
+
+                return Promise.all(
+                    newNodes.map((child) => transformTree(document, child, callback))
+                );
+            }
+            else {
+                return Promise.all(
+                    map(currentNode.childNodes, (child) => transformTree(document, child, callback))
+                );
+            }
+        };
+
+        if ( task === null ) {
+            return replaceNode(null)
+        }
+        if ( task.then ) {
+            // Promise task; potential transformation
+            return task.then(replaceNode);
+        }
+        else {
+            // Syncronous transformation
+            return replaceNode(task);
+        }
+    }
+    else {
+        // This element has opted to do nothing to itself.
+        // Recurse on its children.
+        return Promise.all(
+            map(currentNode.childNodes, (child) => transformTree(document, child, callback))
+        );
     }
 }
 
@@ -90,23 +156,38 @@ function renderNode(rootNode) {
 
     var document = getDocument(rootNode);
 
-    recurseTree(rootNode, (foundNode) => {
+    return transformTree(document, rootNode, (foundNode) => {
         if (foundNode.tagName) {
             let nodeType = foundNode.tagName.toLowerCase();
             let customElement = registeredElements[nodeType];
-            if (customElement) {
+
+            if (customElement && typeof customElement === 'function') {
+                var subResult = customElement(foundNode, document);
+
+                // Replace with children by default
+                return (subResult === undefined) ? null : subResult;
+            }
+            else if (customElement) {
                 // TODO: Should probably clone node, not change prototype, for performance
                 Object.setPrototypeOf(foundNode, customElement);
+
                 if (customElement.createdCallback) {
-                    createdPromises.push(new Promise((resolve) => {
-                        resolve(customElement.createdCallback.call(foundNode, document));
-                    }));
+                    try {
+                        var result = customElement.createdCallback.call(foundNode, document);
+                        if ( result && result.then ) {
+                            // Client-side custom elements never replace themselves;
+                            // resolve with undefined to prevent such a scenario.
+                            return result.then( () => undefined );
+                        }
+                    }
+                    catch (err) {
+                        return Promise.reject(err);
+                    }
                 }
             }
         }
-    });
-
-    return Promise.all(createdPromises).then(() => rootNode);
+    })
+        .then(() => rootNode);
 }
 
 /**
@@ -154,3 +235,13 @@ function getDocument(rootNode) {
         return rootNode;
     }
 }
+
+function map (arrayLike, fn) {
+    var results = [];
+    for (var i=0; i < arrayLike.length; i++) {
+        results.push( fn(arrayLike[i]) );
+    }
+    return results;
+}
+
+var slice = Array.prototype.slice;
