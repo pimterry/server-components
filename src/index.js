@@ -1,7 +1,6 @@
 "use strict";
 
 var domino = require("domino");
-var validateElementName = require("validate-element-name");
 
 /**
  * The DOM object (components.dom) exposes tradition DOM objects (normally globally available
@@ -17,41 +16,84 @@ exports.dom = domino.impl;
  * with an element name, and options (typically including the prototype returned here as your
  * 'prototype' value).
  */
-exports.newElement = function newElement() {
-    return Object.create(domino.impl.HTMLElement.prototype);
-};
+var CustomElementRegistry = require('./registry');
+exports.customElements = CustomElementRegistry.instance();
+exports.HTMLElement = CustomElementRegistry.HTMLElement;
 
-var registeredElements = {};
+const _upgradedProp = '__$CE_upgraded';
 
 /**
- * Registers an element, so that it will be used when the given element name is found during parsing.
+ * Registers a transformer for a tag that is intended to run server-side.
  *
- * Element names are required to contain a hyphen (to disambiguate them from existing element names),
- * be entirely lower-case, and not start with a hyphen.
- *
- * The only option currently supported is 'prototype', which sets the prototype of the given element.
- * This prototype will have its various callbacks called when it is found during document parsing,
- * and properties of the prototype will be exposed within the DOM to other elements there in turn.
+ * At the moment, only one transformer is permitted per tag.
  */
-exports.registerElement = function registerElement(name, options) {
-    var nameValidationResult = validateElementName(name);
-    if (!nameValidationResult.isValid) {
-        throw new Error(`Registration failed for '${name}'. ${nameValidationResult.message}`);
-    }
+var transformers = {};
 
-    if (options && options.prototype) {
-        registeredElements[name] = options.prototype;
-    } else {
-        registeredElements[name] = exports.newElement();
+exports.registerTransformer = function registerTransformer (name, handler) {
+    if ( transformers[name] && typeof transformers[name] !== 'function' ) {
+        throw new Error(`Registration failed for '${name}'. Name is already taken by another transformer.`);
     }
-
-    return registeredElements[name].constructor;
+    transformers[name] = handler;
+    return handler;
 };
 
-function recurseTree(rootNode, callback) {
-    for (let node of rootNode.childNodes) {
-        callback(node);
-        recurseTree(node, callback);
+
+function transformTree(document, visitedNodes, currentNode, callback) {
+
+    var task = visitedNodes.has(currentNode) ? undefined : callback(currentNode);
+
+    visitedNodes.add(currentNode);
+
+    if ( task !== undefined ) {
+        let replaceNode = function replaceNode (results) {
+            if (results === null) {
+                currentNode.parentNode.removeChild(currentNode);
+                return Promise.resolve();
+            }
+            if (typeof results === 'string') {
+                var temp = document.createElement('template');
+                temp.innerHTML = results;
+                results = temp.content.childNodes;
+            }
+            if (results) {
+                var fragment = document.createDocumentFragment();
+                var newNodes = results.length ? slice.call(results) : [results];
+
+                newNodes.map( (newNode) => {
+                    if (newNode.parentNode === currentNode) currentNode.removeChild(newNode);
+                    fragment.appendChild(newNode);
+                });
+                currentNode.parentNode.replaceChild(fragment, currentNode);
+
+                return Promise.all(
+                    newNodes.map((child) => transformTree(document, visitedNodes, child, callback))
+                );
+            }
+            else {
+                return Promise.all(
+                    map(currentNode.childNodes, (child) => transformTree(document, visitedNodes, child, callback))
+                );
+            }
+        };
+
+        if ( task === null ) {
+            return replaceNode(null);
+        }
+        if ( task.then ) {
+            // Promise task; potential transformation
+            return task.then(replaceNode);
+        }
+        else {
+            // Syncronous transformation
+            return replaceNode(task);
+        }
+    }
+    else {
+        // This element has opted to do nothing to itself.
+        // Recurse on its children.
+        return Promise.all(
+            map(currentNode.childNodes, (child) => transformTree(document, visitedNodes, child, callback))
+        );
     }
 }
 
@@ -89,24 +131,67 @@ function renderNode(rootNode) {
     let createdPromises = [];
 
     var document = getDocument(rootNode);
+    var visitedNodes = new Set();
+    var upgradedNodes = new Set();
+    var customElements = exports.customElements;
 
-    recurseTree(rootNode, (foundNode) => {
-        if (foundNode.tagName) {
-            let nodeType = foundNode.tagName.toLowerCase();
-            let customElement = registeredElements[nodeType];
-            if (customElement) {
-                // TODO: Should probably clone node, not change prototype, for performance
-                Object.setPrototypeOf(foundNode, customElement);
-                if (customElement.createdCallback) {
-                    createdPromises.push(new Promise((resolve) => {
-                        resolve(customElement.createdCallback.call(foundNode, document));
-                    }));
+    return transformTree(document, visitedNodes, rootNode, function render (element) {
+
+        var transformer = transformers[element.localName];
+
+        if (transformer && ! element.serverTransformed) {
+            let result = transformer(element, document);
+            element.serverTransformed = true;
+
+            let handleTransformerResult = (result) => {
+                if ( result === undefined && customElements.get(element.localName) ) {
+                    // Re-render the transformed element as a custom element,
+                    // since a corresponding custom tag is defined.
+                    return render(element);
+                }
+                if ( result === undefined ) {
+                    // Replace the element with its children; its server-side duties are fulfilled.
+                    return element.childNodes;
+                }
+                else {
+                    // The transformer has opted to do something specific.
+                    return result;
+                }
+            };
+
+            if ( result && result.then ) {
+                return result.then(handleTransformerResult);
+            }
+            else {
+                return handleTransformerResult(result);
+            }
+        }
+
+        const definition = customElements.getDefinition(element.localName);
+
+        if (definition) {
+            if ( upgradedNodes.has(element[_upgradedProp]) ) {
+                return;
+            }
+            upgradeElement(element, definition, true);
+            upgradedNodes.add(element);
+
+            if (definition.connectedCallback) {
+                try {
+                    let result = definition.connectedCallback.call(element, document);
+                    if ( result && result.then ) {
+                        // Client-side custom elements never replace themselves;
+                        // resolve with undefined to prevent such a scenario.
+                        return result.then( () => undefined );
+                    }
+                }
+                catch (err) {
+                    return Promise.reject(err);
                 }
             }
         }
-    });
-
-    return Promise.all(createdPromises).then(() => rootNode);
+    })
+        .then(() => rootNode);
 }
 
 /**
@@ -154,3 +239,46 @@ function getDocument(rootNode) {
         return rootNode;
     }
 }
+
+function upgradeElement (element, definition, callConstructor) {
+    const prototype = definition.constructor.prototype;
+    Object.setPrototypeOf(element, prototype);
+    if (callConstructor) {
+        CustomElementRegistry.instance()._setNewInstance(element);
+        new (definition.constructor)();
+        element[_upgradedProp] = true;
+        console.assert(CustomElementRegistry.instance()._newInstance === null);
+    }
+
+    const observedAttributes = definition.observedAttributes;
+    const attributeChangedCallback = definition.attributeChangedCallback;
+    if (attributeChangedCallback && observedAttributes.length > 0) {
+
+        // Trigger attributeChangedCallback for existing attributes.
+        // https://html.spec.whatwg.org/multipage/scripting.html#upgrades
+        for (let i = 0; i < observedAttributes.length; i++) {
+            const name = observedAttributes[i];
+            if (element.hasAttribute(name)) {
+                const value = element.getAttribute(name);
+                attributeChangedCallback.call(element, name, null, value, null);
+            }
+        }
+    }
+  }
+
+//
+// Helpers
+//
+function map (arrayLike, fn) {
+    var results = [];
+    for (var i=0; i < arrayLike.length; i++) {
+        results.push( fn(arrayLike[i]) );
+    }
+    return results;
+}
+
+function isClass(v) {
+  return typeof v === 'function' && /^\s*class\s+/.test(v.toString());
+}
+
+var slice = Array.prototype.slice;
