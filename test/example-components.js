@@ -1,3 +1,4 @@
+"use strict";
 var expect = require('chai').expect;
 var components = require("../src/index.js");
 
@@ -6,12 +7,13 @@ var linkify = require("linkifyjs/element");
 describe("An example component:", () => {
     describe("using static rendering", () => {
         before(() => {
-            var StaticElement = components.newElement();
-            StaticElement.createdCallback = function () {
-                this.innerHTML = "Hi there";
-            };
-
-            components.registerElement("my-greeting", { prototype: StaticElement });
+            class StaticElement extends components.HTMLElement {
+                connectedCallback() {
+                    this.innerHTML = "Hi there";
+                }
+            }
+            components.customElements.undefine("my-greeting");
+            components.customElements.define("my-greeting", StaticElement);
         });
 
         it("replaces its content with the given text", () => {
@@ -23,15 +25,16 @@ describe("An example component:", () => {
 
     describe("using dynamic logic for rendering", () => {
         before(() => {
-            var CounterElement = components.newElement();
             var currentCount = 0;
 
-            CounterElement.createdCallback = function () {
-                currentCount += 1;
-                this.innerHTML = "There have been " + currentCount + " visitors.";
-            };
-
-            components.registerElement("visitor-counter", { prototype: CounterElement });
+            class CounterElement extends components.HTMLElement {
+                connectedCallback() {
+                    currentCount += 1;
+                    this.innerHTML = "There have been " + currentCount + " visitors.";
+                }
+            }
+            components.customElements.undefine("visitor-counter");
+            components.customElements.define("visitor-counter", CounterElement);
         });
 
         it("dynamically changes its content", () => {
@@ -49,14 +52,14 @@ describe("An example component:", () => {
 
     describe("parameterised by HTML content", () => {
         before(() => {
-            var LinkifyElement = components.newElement();
-
-            LinkifyElement.createdCallback = function (document) {
-                // Delegate the whole thing to a real normal front-end library!
-                linkify(this, { target: () => null, linkClass: "autolinked" }, document);
-             };
-
-            components.registerElement("linkify-urls", { prototype: LinkifyElement });
+            class LinkifyElement extends components.HTMLElement {
+                connectedCallback(document) {
+                    // Delegate the whole thing to a real front-end library!
+                    linkify(this, { target: () => null, linkClass: "autolinked" }, document);
+                }
+            }
+            components.customElements.undefine("linkify-urls");
+            components.customElements.define("linkify-urls", LinkifyElement);
         });
 
         it("should be able to parse and manipulate it's content", () => {

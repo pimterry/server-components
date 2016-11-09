@@ -1,26 +1,59 @@
+"use strict";
 var expect = require('chai').expect;
 
 var components = require("../src/index.js");
 
 describe("A component that renders on the server", () => {
 
-    it("removes itself by default", () => {
+    it("replaces itself with its children by default", () => {
         var itRan = false;
 
-        components.registerServerElement("my-analytics", function (node) {
+        components.registerTransformer("my-analytics", function (node) {
             itRan = true;
         });
 
         return components.renderFragment(
-            "<p>One<my-analytics>Two</my-analytics></p><div>Three</div>"
+            "<p>One<my-analytics>Two<span>Things</span></my-analytics></p><div>Three</div>"
         ).then((output) => {
             expect(itRan).to.equal(true);
-            expect(output).to.equal("<p>One</p><div>Three</div>");
+            expect(output).to.equal("<p>OneTwo<span>Things</span></p><div>Three</div>");
+        });
+    });
+
+    it("replaces itself with its children by default (async)", () => {
+        var itRan = false;
+
+        components.registerTransformer("my-analytics", function (node) {
+            itRan = true;
+            return Promise.resolve();
+        });
+
+        return components.renderFragment(
+            "<p>One<my-analytics>Two<span>Things</span></my-analytics></p><div>Three</div>"
+        ).then((output) => {
+            expect(itRan).to.equal(true);
+            expect(output).to.equal("<p>OneTwo<span>Things</span></p><div>Three</div>");
+        });
+    });
+
+    it("can remove itself and its children", () => {
+        var itRan = false;
+
+        components.registerTransformer("ghost", function (node) {
+            itRan = true;
+            return null;
+        });
+
+        return components.renderFragment(
+            "<h1>One</h1><ghost><h2>Two</h2></ghost><h3>Three</h3>"
+        ).then((output) => {
+            expect(itRan).to.equal(true);
+            expect(output).to.equal("<h1>One</h1><h3>Three</h3>");
         });
     });
 
     it("can replace itself with a new node via an HTML string", () => {
-        components.registerServerElement("my-timestamp", function (node) {
+        components.registerTransformer("my-timestamp", function (node) {
             return `<div>123</div>`;
         });
 
@@ -32,7 +65,7 @@ describe("A component that renders on the server", () => {
     });
 
     it("can replace itself with a child", () => {
-        components.registerServerElement("latter", function (node) {
+        components.registerTransformer("latter", function (node) {
             return node.children[1];
         });
 
@@ -44,8 +77,8 @@ describe("A component that renders on the server", () => {
     });
 
     it("can replace itself with its children", () => {
-        var somethingHappened = false
-        components.registerServerElement("log", function (node) {
+        var somethingHappened = false;
+        components.registerTransformer("log", function (node) {
             somethingHappened = true;
             return node.children;
         });
@@ -55,13 +88,13 @@ describe("A component that renders on the server", () => {
         ).then((output) => {
             expect(output).to.equal("<h1>One</h1><h2>Two</h2>");
         });
-    })
+    });
 
     it("can make async requests", () => {
-        components.registerServerElement("user-count", function (node) {
+        components.registerTransformer("user-count", function (node) {
             return new Promise((resolve) => {
-                setTimeout(() => resolve("<span>10</span>"), 25)
-            })
+                setTimeout(() => resolve("<span>10</span>"), 25);
+            });
         });
 
         return components.renderFragment(
@@ -69,5 +102,37 @@ describe("A component that renders on the server", () => {
         ).then((output) => {
             expect(output).to.equal("<span>10</span>");
         });
-    })
+    });
+
+    it("can transform custom elements", () => {
+        var itRan = false;
+        var itRanToo = false;
+
+        components.registerTransformer("double-render", function (node) {
+            itRan = true;
+            return new Promise((resolve) => {
+                setTimeout(function () {
+                    node.setAttribute('data-preset', JSON.stringify({ x: 10 }));
+                    resolve();
+                }, 5);
+            });
+        });
+
+        class MyElement extends components.HTMLElement {
+            connectedCallback() {
+                itRanToo = true;
+                this.textContent = this.getAttribute('data-preset');
+                this.setAttribute('data-preset', '99');
+            }
+        }
+        components.customElements.define("double-render", MyElement);
+
+        return components.renderFragment(
+            "<double-render></double-render>"
+        ).then((output) => {
+            expect(itRan).to.equal(true);
+            expect(itRanToo).to.equal(true);
+            expect(output).to.equal(`<double-render data-preset="99">{"x":10}</double-render>`);
+        });
+    });
 });
