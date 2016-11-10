@@ -27,19 +27,19 @@ You can take the same ideas (and standards), apply them directly server side, to
 var components = require("server-components");
 
 // Get the prototype for a new element
-var NewElement = components.newElement();
-
-// When the element is created during DOM parsing, you can transform the HTML inside it.
-// This can be configurable too, either by setting attributes or adding HTML content
-// inside it or elsewhere in the page it can interact with. Elements can fire events
-// that other elements can receive to allow interactions, or even expose methods
-// or data that other elements in the page can access directly.
-NewElement.createdCallback = function () {
-    this.innerHTML = "Hi there";
-};
+class NewElement extends components.HTMLElement {
+    // When the element is created during DOM parsing, you can transform the HTML inside it.
+    // This can be configurable too, either by setting attributes or adding HTML content
+    // inside it or elsewhere in the page it can interact with. Elements can fire events
+    // that other elements can receive to allow interactions, or even expose methods
+    // or data that other elements in the page can access directly.
+    connectedCallback() {
+        this.innerHTML = "Hi there";
+    }
+}
 
 // Register the element with an element name
-components.registerElement("my-new-element", { prototype: NewElement });
+components.customElements.define("my-new-element", NewElement);
 ```
 
 For examples of more complex component definitions, take a look at the [example components](https://github.com/pimterry/server-components/blob/master/component-examples.md)
@@ -83,7 +83,7 @@ There aren't many published sharable components to drop in quite yet, as it's st
 
 ### Top-level API
 
-#### `components.newElement()`
+#### `components.HTMLElement`
 
 Creates a returns a new custom HTML element prototype, extending the HTMLElement prototype.
 
@@ -91,7 +91,7 @@ Note that this does *not* register the element. To do that, call `components.reg
 
 This is broadly equivalent to `Object.create(HTMLElement.prototype)` in browser land, and exactly equivalent here to `Object.create(components.dom.HTMLElement.prototype)`. You can call that yourself instead if you like, but it's a bit of a mouthful.
 
-#### `components.registerElement(componentName, options)`
+#### `components.customElements.define(componentName, Constructor)`
 
 Registers an element, so that it will be used when the given element name is found during parsing.
 
@@ -131,9 +131,9 @@ These methods are methods you can implement on your component prototype (as retu
 
 Any methods that are implemented, from this selection or otherwise, will be exposed on your element in the DOM during rendering. I.e. you can call `document.querySelector("my-element").setTitle("New Title")` and to call the `setTitle` method on your object, which can then potentially change how your component is rendered.
 
-#### `yourComponent.createdCallback(document)`
+#### `yourComponentConstructor.prototype.createdCallback(document)`
 
-Called when an element is created.
+Called when an element is attached to the faux DOM.
 
 **This is where you put your magic!** Rewrite the elements contents to dynamically generate what your users will actually see client side. Read configuration from attributes or the initial child nodes to create flexible reconfigurable reusable elements. Register for events to create elements that interact with the rest of the application structure. Build your page.
 
@@ -143,17 +143,13 @@ If this callback returns a promise, the rendering process will not resolve until
 
 These callbacks are called in opening tag order, so a parent's createdCallback is called, then each of its children's, then its next sibling element.
 
-#### `yourComponent.attachedCallback(document)`
-
-Called when the element is attached to the DOM. This is different to when it's created when your component is being built programmatically, not through HTML parsing. *Not yet implemented*
-
-#### `yourComponent.detachedCallback(document)`
+#### `yourComponentConstructor.prototype.disconnectedCallback(document)`
 
 Called when the element is removed from the DOM. *Not yet implemented*
 
-#### `yourComponent.attributeChangedCallback(document)`
+#### `yourComponentConstructor.prototype.attributeChangedCallback(document)`
 
-Called when an attribute of the element is added, changed, or removed. *Not yet implemented*.
+Called when an attribute of the element is added, changed, or removed. *Partially implemented;* runs on component initialization.
 
 **So far only the createdCallback is implemented here, as the others are less relevant initially for the key simpler cases. Each of those will be coming in time though! Watch this space.**
 

@@ -16,12 +16,12 @@ With the web component below, rendering `<my-greeting></my-greeting>` will resul
 ```javascript
 var components = require("server-components");
 
-var StaticElement = components.newElement();
-StaticElement.createdCallback = function () {
-    this.innerHTML = "Hi there";
-};
-
-components.registerElement("my-greeting", { prototype: StaticElement });
+class StaticElement extends components.HTMLElement {
+    connectedCallback() {
+        this.innerHTML = "Hi there"
+    }
+}
+components.customElements.define("my-greeting", StaticElement);
 ```
 
 This is very basic, and toy cases like this aren't immediately useful, but this can be helpful for standard
@@ -42,15 +42,15 @@ comeback!
 ```javascript
 var components = require("server-components");
 
-var CounterElement = components.newElement();
 var currentCount = 0;
 
-CounterElement.createdCallback = function () {
-    currentCount += 1;
-    this.innerHTML = "There have been " + currentCount + " visitors.";
-};
-
-components.registerElement("visitor-counter", { prototype: CounterElement });
+class CounterElement extends components.HTMLElement {
+    connectedCallback() {
+        currentCount += 1;
+        this.innerHTML = "There have been " + currentCount + " visitors.";
+    }
+}
+components.customElements.define("visitor-counter", CounterElement);
 ```
 
 After a few visitors, this will render `<visitor-counter></visitor-counter>` into something like
@@ -84,14 +84,13 @@ For example, you might want a component that wraps HTML, parses all the text wit
 var components = require("server-components");
 var linkify = require("linkifyjs/element");
 
-var LinkifyElement = components.newElement();
-
-LinkifyElement.createdCallback = function (document) {
-    // Delegate the whole thing to a real normal front-end library!
-    linkify(this, { target: () => null, linkClass: "autolinked" }, document);
- };
-
-components.registerElement("linkify-urls", { prototype: LinkifyElement });
+class LinkifyElement extends components.HTMLElement {
+    connectedCallback() {
+        // Delegate the whole thing to a real front-end library!
+        linkify(this, { target: () => null, linkClass: "autolinked" }, document);
+    }
+}
+components.customElements.define("linkify-urls", LinkifyElement);
 ```
 
 With this, we can pass HTML into Server Components that looks like
