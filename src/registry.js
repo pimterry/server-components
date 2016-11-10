@@ -1,3 +1,4 @@
+"use strict";
 var domino = require("domino");
 var Document = require('domino/lib/Document');
 var Element = require('domino/lib/Element');
@@ -210,9 +211,11 @@ exports = module.exports = CustomElementRegistry;
 
 
 //
-// Overwrite domino's new element constructor
+// - Overwrite domino's new element constructor
+// - Patch domino's document.createElement
 //
 const origHTMLElement = domino.impl.HTMLElement;
+const _origCreateElement = Document.prototype.createElement;
 
 const newHTMLElement = function HTMLElement() {
   const customElements = _customElements();
@@ -231,16 +234,6 @@ const newHTMLElement = function HTMLElement() {
   }
   throw new Error('Unknown constructor. Did you call customElements.define()?');
 };
-exports.HTMLElement = newHTMLElement;
-exports.HTMLElement.prototype = Object.create(domino.impl.HTMLElement.prototype, {
-  constructor: {value: exports.HTMLElement, configurable: true, writable: true},
-});
-
-
-//
-// Patch document.createElement
-//
-const _origCreateElement = Document.prototype.createElement;
 
 /**
  * Creates a new element and upgrades it if it's a custom element.
@@ -262,23 +255,10 @@ function _createElement(doc, tagName, options, callConstructor) {
   }
   return element;
 }
-Document.prototype.createElement = function(tagName, options) {
-  return _createElement(this, tagName, options, true);
-};
 
-//
-// Patch doc.createElementNS
-//
-const HTMLNS = 'http://www.w3.org/1999/xhtml';
-const _origCreateElementNS = Document.prototype.createElementNS;
 
-Document.prototype.createElementNS = function(namespaceURI, qualifiedName) {
-  if (namespaceURI === 'http://www.w3.org/1999/xhtml') {
-    return this.createElement(qualifiedName);
-  } else {
-    return _origCreateElementNS.call(this, namespaceURI, qualifiedName);
-  }
-};
+var patched = require('./extend-domino')(newHTMLElement, _createElement);
+exports.HTMLElement = patched.HTMLElement;
 
 
 /**
