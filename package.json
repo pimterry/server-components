@@ -44,7 +44,18 @@
   },
   "jshintConfig": {
     "esversion": 6,
-    "node": true
+    "node": true,
+    "globals": {
+      "describe": false,
+      "xdescribe": false,
+      "it": false,
+      "xit": false,
+      "before": false,
+      "beforeEach": false,
+      "after": false,
+      "afterEach": false,
+      "expect": false
+    }
   },
   "engines": {
     "node": ">= 4.0.0"

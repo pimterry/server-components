@@ -22,21 +22,6 @@ exports.HTMLElement = CustomElementRegistry.HTMLElement;
 
 const _upgradedProp = '__$CE_upgraded';
 
-/**
- * Registers a transformer for a tag that is intended to run server-side.
- *
- * At the moment, only one transformer is permitted per tag.
- */
-var transformers = {};
-
-exports.registerTransformer = function registerTransformer (name, handler) {
-    if ( transformers[name] && typeof transformers[name] !== 'function' ) {
-        throw new Error(`Registration failed for '${name}'. Name is already taken by another transformer.`);
-    }
-    transformers[name] = handler;
-    return handler;
-};
-
 
 function transformTree(document, visitedNodes, currentNode, callback) {
 
@@ -44,56 +29,15 @@ function transformTree(document, visitedNodes, currentNode, callback) {
 
     visitedNodes.add(currentNode);
 
-    if ( task !== undefined ) {
-        let replaceNode = function replaceNode (results) {
-            if (results === null) {
-                currentNode.parentNode.removeChild(currentNode);
-                return Promise.resolve();
-            }
-            if (typeof results === 'string') {
-                var temp = document.createElement('template');
-                temp.innerHTML = results;
-                results = temp.content.childNodes;
-            }
-            if (results) {
-                var fragment = document.createDocumentFragment();
-                var newNodes = results.length ? slice.call(results) : [results];
+    let visitChildren = () => Promise.all(
+        map(currentNode.childNodes, (child) => transformTree(document, visitedNodes, child, callback))
+    );
 
-                newNodes.map( (newNode) => {
-                    if (newNode.parentNode === currentNode) currentNode.removeChild(newNode);
-                    fragment.appendChild(newNode);
-                });
-                currentNode.parentNode.replaceChild(fragment, currentNode);
-
-                return Promise.all(
-                    newNodes.map((child) => transformTree(document, visitedNodes, child, callback))
-                );
-            }
-            else {
-                return Promise.all(
-                    map(currentNode.childNodes, (child) => transformTree(document, visitedNodes, child, callback))
-                );
-            }
-        };
-
-        if ( task === null ) {
-            return replaceNode(null);
-        }
-        if ( task.then ) {
-            // Promise task; potential transformation
-            return task.then(replaceNode);
-        }
-        else {
-            // Syncronous transformation
-            return replaceNode(task);
-        }
+    if ( task && task.then ) {
+        return task.then(visitChildren);
     }
     else {
-        // This element has opted to do nothing to itself.
-        // Recurse on its children.
-        return Promise.all(
-            map(currentNode.childNodes, (child) => transformTree(document, visitedNodes, child, callback))
-        );
+        return visitChildren();
     }
 }
 
@@ -137,36 +81,6 @@ function renderNode(rootNode) {
 
     return transformTree(document, visitedNodes, rootNode, function render (element) {
 
-        var transformer = transformers[element.localName];
-
-        if (transformer && ! element.serverTransformed) {
-            let result = transformer(element, document);
-            element.serverTransformed = true;
-
-            let handleTransformerResult = (result) => {
-                if ( result === undefined && customElements.get(element.localName) ) {
-                    // Re-render the transformed element as a custom element,
-                    // since a corresponding custom tag is defined.
-                    return render(element);
-                }
-                if ( result === undefined ) {
-                    // Replace the element with its children; its server-side duties are fulfilled.
-                    return element.childNodes;
-                }
-                else {
-                    // The transformer has opted to do something specific.
-                    return result;
-                }
-            };
-
-            if ( result && result.then ) {
-                return result.then(handleTransformerResult);
-            }
-            else {
-                return handleTransformerResult(result);
-            }
-        }
-
         const definition = customElements.getDefinition(element.localName);
 
         if (definition) {
@@ -177,17 +91,9 @@ function renderNode(rootNode) {
             upgradedNodes.add(element);
 
             if (definition.connectedCallback) {
-                try {
-                    let result = definition.connectedCallback.call(element, document);
-                    if ( result && result.then ) {
-                        // Client-side custom elements never replace themselves;
-                        // resolve with undefined to prevent such a scenario.
-                        return result.then( () => undefined );
-                    }
-                }
-                catch (err) {
-                    return Promise.reject(err);
-                }
+                return new Promise(function(resolve, reject) {
+                    resolve( definition.connectedCallback.call(element, document) );
+                });
             }
         }
     })
@@ -276,9 +182,3 @@ function map (arrayLike, fn) {
     }
     return results;
 }
-
-function isClass(v) {
-  return typeof v === 'function' && /^\s*class\s+/.test(v.toString());
-}
-
-var slice = Array.prototype.slice;

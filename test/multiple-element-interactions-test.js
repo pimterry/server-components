@@ -61,7 +61,7 @@ describe("When multiple DOM elements are present", () => {
             }
             DataSource.data = [10, 20, 30];
 
-            components.customElements.define("data-displayer", DataDisplayer);
+            components.customElements.define("data-displayer", DataSource);
 
             return components.renderFragment(
                 "<data-displayer><data-source></data-source></data-displayer>"
