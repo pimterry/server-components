@@ -226,7 +226,8 @@ const newHTMLElement = function HTMLElement() {
   if (this.constructor) {
     // Find the tagname of the constructor and create a new element with it
     const tagName = customElements._constructors.get(this.constructor);
-    return _createElement(doc, tagName, undefined, false);
+    // Domino does not need a doc as a `this` parameter
+    return _createElement(null, tagName, undefined, false);
   }
   throw new Error('Unknown constructor. Did you call customElements.define()?');
 };
