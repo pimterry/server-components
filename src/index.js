@@ -168,9 +168,5 @@ function upgradeElement (element, definition, callConstructor) {
 // Helpers
 //
 function map (arrayLike, fn) {
-    var results = [];
-    for (var i=0; i < arrayLike.length; i++) {
-        results.push( fn(arrayLike[i]) );
-    }
-    return results;
+    return Array.prototype.slice.call(arrayLike).map(fn);
 }
