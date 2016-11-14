@@ -71,7 +71,6 @@ function renderNode(rootNode) {
 
     var document = getDocument(rootNode);
     var visitedNodes = new Set();
-    var upgradedNodes = new Set();
     var customElements = exports.customElements;
 
     return transformTree(document, visitedNodes, rootNode, function render (element) {
@@ -79,11 +78,10 @@ function renderNode(rootNode) {
         const definition = customElements.getDefinition(element.localName);
 
         if (definition) {
-            if ( upgradedNodes.has(element[_upgradedProp]) ) {
+            if ( element[_upgradedProp] ) {
                 return;
             }
             upgradeElement(element, definition, true);
-            upgradedNodes.add(element);
 
             if (definition.connectedCallback) {
                 return new Promise(function(resolve, reject) {
