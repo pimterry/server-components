@@ -33,12 +33,7 @@ function transformTree(document, visitedNodes, currentNode, callback) {
         map(currentNode.childNodes, (child) => transformTree(document, visitedNodes, child, callback))
     );
 
-    if ( task && task.then ) {
-        return task.then(visitChildren);
-    }
-    else {
-        return visitChildren();
-    }
+    return Promise.resolve(task).then(visitChildren);
 }
 
 /**

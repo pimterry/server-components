@@ -26,7 +26,7 @@ You can take the same ideas (and standards), apply them directly server side, to
 ```javascript
 var components = require("server-components");
 
-// Get the prototype for a new element
+// Define a new class that extends a native HTML Element
 class NewElement extends components.HTMLElement {
     // When the element is created during DOM parsing, you can transform the HTML inside it.
     // This can be configurable too, either by setting attributes or adding HTML content
@@ -131,9 +131,9 @@ These methods are methods you can implement on your component prototype (as retu
 
 Any methods that are implemented, from this selection or otherwise, will be exposed on your element in the DOM during rendering. I.e. you can call `document.querySelector("my-element").setTitle("New Title")` and to call the `setTitle` method on your object, which can then potentially change how your component is rendered.
 
-#### `yourComponentConstructor.prototype.createdCallback(document)`
+#### `yourComponentConstructor.prototype.connectedCallback(document)`
 
-Called when an element is attached to the faux DOM.
+Called when an element is attached to the DOM.
 
 **This is where you put your magic!** Rewrite the elements contents to dynamically generate what your users will actually see client side. Read configuration from attributes or the initial child nodes to create flexible reconfigurable reusable elements. Register for events to create elements that interact with the rest of the application structure. Build your page.
 
@@ -141,7 +141,7 @@ This method is called with `this` bound to the element that's being rendered (ju
 
 If this callback returns a promise, the rendering process will not resolve until that promise does, and will fail if that promise fails. You can use this to perform asynchronous actions without your component definitions. Pull tweets from twitter and draw them into the page, or anything else you can imagine.
 
-These callbacks are called in opening tag order, so a parent's createdCallback is called, then each of its children's, then its next sibling element.
+These callbacks are called in opening tag order, so a parent's connectedCallback is called, then each of its children's, then its next sibling element.
 
 #### `yourComponentConstructor.prototype.disconnectedCallback(document)`
 
@@ -151,7 +151,7 @@ Called when the element is removed from the DOM. *Not yet implemented*
 
 Called when an attribute of the element is added, changed, or removed. *Partially implemented;* runs on component initialization.
 
-**So far only the createdCallback is implemented here, as the others are less relevant initially for the key simpler cases. Each of those will be coming in time though! Watch this space.**
+**So far only the connectedCallback is implemented here, as the others are less relevant initially for the key simpler cases. Each of those will be coming in time though! Watch this space.**
 
 ## Why does this exist?
 
