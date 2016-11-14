@@ -146,7 +146,6 @@ function upgradeElement (element, definition, callConstructor) {
         CustomElementRegistry.instance()._setNewInstance(element);
         new (definition.constructor)();
         element[_upgradedProp] = true;
-        console.assert(CustomElementRegistry.instance()._newInstance === null);
     }
 
     const observedAttributes = definition.observedAttributes;
