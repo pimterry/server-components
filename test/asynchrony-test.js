@@ -1,15 +1,15 @@
 "use strict";
 var expect = require('chai').expect;
 
-var components = require("../src/index.js");
+var customElements = require("../src/index.js");
 
 describe("An asynchronous element", () => {
     beforeEach(() => {
-        components.customElements.reset();
+        customElements.customElements.reset();
     });
 
     it("blocks rendering until they complete", () => {
-        class SlowElement extends components.HTMLElement {
+        class SlowElement extends customElements.HTMLElement {
             connectedCallback() {
                 return new Promise((resolve, reject) => {
                     setTimeout(() => {
@@ -19,22 +19,22 @@ describe("An asynchronous element", () => {
                 });
             }
         }
-        components.customElements.define("slow-element", SlowElement);
+        customElements.define("slow-element", SlowElement);
 
-        return components.renderFragment("<slow-element></slow-element>").then((output) => {
+        return customElements.renderFragment("<slow-element></slow-element>").then((output) => {
             expect(output).to.equal("<slow-element>loaded!</slow-element>");
         });
     });
 
     it("throw an async error if a component fails to render synchronously", () => {
-        class FailingElement extends components.HTMLElement {
+        class FailingElement extends customElements.HTMLElement {
             connectedCallback() {
                 throw new Error();
             }
         }
-        components.customElements.define("failing-element", FailingElement);
+        customElements.define("failing-element", FailingElement);
 
-        return components.renderFragment(
+        return customElements.renderFragment(
             "<failing-element></failing-element>"
         ).then((output) => {
             throw new Error("Should not successfully render");
@@ -42,14 +42,14 @@ describe("An asynchronous element", () => {
     });
 
     it("throw an async error if a component fails to render asynchronously", () => {
-        class FailingElement extends components.HTMLElement {
+        class FailingElement extends customElements.HTMLElement {
             connectedCallback() {
                 return Promise.reject(new Error());
             }
         }
-        components.customElements.define("failing-element", FailingElement);
+        customElements.define("failing-element", FailingElement);
 
-        return components.renderFragment(
+        return customElements.renderFragment(
             "<failing-element></failing-element>"
         ).then((output) => {
             throw new Error("Should not successfully render");

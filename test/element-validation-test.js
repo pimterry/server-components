@@ -1,13 +1,13 @@
 "use strict";
 var expect = require('chai').expect;
 
-var components = require("../src/index.js");
+var customElements = require("../src/index.js");
 
 describe("Custom element validation", () => {
     it("requires a non-empty name", () => {
         class InvalidElement {}
         expect(() => {
-            components.customElements.define("", InvalidElement);
+            customElements.define("", InvalidElement);
         }).to.throw(
             /The element name '' is not valid./
         );
@@ -16,7 +16,7 @@ describe("Custom element validation", () => {
     it("requires a hyphen in the element name", () => {
         class InvalidElement {}
         expect(() => {
-            components.customElements.define("invalidname", InvalidElement);
+            customElements.define("invalidname", InvalidElement);
         }).to.throw(
             /The element name 'invalidname' is not valid./
         );
@@ -25,7 +25,7 @@ describe("Custom element validation", () => {
     it("doesn't allow elements to start with a hyphen", () => {
         class InvalidElement {}
         expect(() => {
-            components.customElements.define("-invalid-name", InvalidElement);
+            customElements.define("-invalid-name", InvalidElement);
         }).to.throw(
             /The element name '-invalid-name' is not valid./
         );
@@ -34,7 +34,7 @@ describe("Custom element validation", () => {
     it("requires element names to be lower case", () => {
         class InvalidElement {}
         expect(() => {
-            components.customElements.define("INVALID-NAME", InvalidElement);
+            customElements.define("INVALID-NAME", InvalidElement);
         }).to.throw(
             /The element name 'INVALID-NAME' is not valid./
         );

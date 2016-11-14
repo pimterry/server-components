@@ -20,6 +20,21 @@ var CustomElementRegistry = require('./registry');
 exports.customElements = CustomElementRegistry.instance();
 exports.HTMLElement = CustomElementRegistry.HTMLElement;
 
+
+/**
+ * Re-export methods for convenience
+ */
+exports.define = function (name, constructor, options) {
+    return CustomElementRegistry.instance().define(name, constructor, options);
+};
+exports.get = function (name) {
+    return CustomElementRegistry.instance().get(name);
+};
+exports.whenDefined = function (name) {
+    return CustomElementRegistry.instance().whenDefined(name);
+};
+
+
 const _upgradedProp = '__$CE_upgraded';
 
 
