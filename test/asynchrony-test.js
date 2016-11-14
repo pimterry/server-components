@@ -4,6 +4,10 @@ var expect = require('chai').expect;
 var components = require("../src/index.js");
 
 describe("An asynchronous element", () => {
+    beforeEach(() => {
+        components.customElements.reset();
+    });
+
     it("blocks rendering until they complete", () => {
         class SlowElement extends components.HTMLElement {
             connectedCallback() {
@@ -43,7 +47,6 @@ describe("An asynchronous element", () => {
                 return Promise.reject(new Error());
             }
         }
-        components.customElements.undefine("failing-element");
         components.customElements.define("failing-element", FailingElement);
 
         return components.renderFragment(

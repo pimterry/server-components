@@ -201,10 +201,10 @@ class CustomElementRegistry {
    * @param {string} localName
    * @return {undefined}
    */
-  undefine(localName) {
-    this._definitions.delete(localName);
-    this._constructors.delete(localName);
-    this._whenDefinedMap.delete(localName);
+  reset() {
+    this._definitions.clear();
+    this._constructors.clear();
+    this._whenDefinedMap.clear();
   }
 }
 exports = module.exports = CustomElementRegistry;

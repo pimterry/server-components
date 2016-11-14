@@ -5,14 +5,17 @@ var components = require("../src/index.js");
 var linkify = require("linkifyjs/element");
 
 describe("An example component:", () => {
+    beforeEach(() => {
+        components.customElements.reset();
+    });
+
     describe("using static rendering", () => {
-        before(() => {
+        beforeEach(() => {
             class StaticElement extends components.HTMLElement {
                 connectedCallback() {
                     this.innerHTML = "Hi there";
                 }
             }
-            components.customElements.undefine("my-greeting");
             components.customElements.define("my-greeting", StaticElement);
         });
 
@@ -24,7 +27,7 @@ describe("An example component:", () => {
     });
 
     describe("using dynamic logic for rendering", () => {
-        before(() => {
+        beforeEach(() => {
             var currentCount = 0;
 
             class CounterElement extends components.HTMLElement {
@@ -33,7 +36,6 @@ describe("An example component:", () => {
                     this.innerHTML = "There have been " + currentCount + " visitors.";
                 }
             }
-            components.customElements.undefine("visitor-counter");
             components.customElements.define("visitor-counter", CounterElement);
         });
 
@@ -51,14 +53,13 @@ describe("An example component:", () => {
     });
 
     describe("parameterised by HTML content", () => {
-        before(() => {
+        beforeEach(() => {
             class LinkifyElement extends components.HTMLElement {
                 connectedCallback(document) {
                     // Delegate the whole thing to a real front-end library!
                     linkify(this, { target: () => null, linkClass: "autolinked" }, document);
                 }
             }
-            components.customElements.undefine("linkify-urls");
             components.customElements.define("linkify-urls", LinkifyElement);
         });
 

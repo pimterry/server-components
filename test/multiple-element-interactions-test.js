@@ -4,6 +4,10 @@ var expect = require('chai').expect;
 var components = require("../src/index.js");
 
 describe("When multiple DOM elements are present", () => {
+    beforeEach(() => {
+        components.customElements.reset();
+    });
+
     describe("nested elements", () => {
         it("are rendered correctly", () => {
             class PrefixedElement extends components.HTMLElement {
@@ -11,7 +15,6 @@ describe("When multiple DOM elements are present", () => {
                     this.innerHTML = "prefix:" + this.innerHTML;
                 }
             }
-            components.customElements.undefine("prefixed-element");
             components.customElements.define("prefixed-element", PrefixedElement);
 
             return components.renderFragment(
