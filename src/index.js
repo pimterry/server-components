@@ -44,11 +44,9 @@ function transformTree(document, visitedNodes, currentNode, callback) {
 
     visitedNodes.add(currentNode);
 
-    let visitChildren = () => Promise.all(
-        map(currentNode.childNodes, (child) => transformTree(document, visitedNodes, child, callback))
-    );
-
-    return Promise.resolve(task).then(visitChildren);
+    for (var child of currentNode.childNodes) {
+        transformTree(document, visitedNodes, child, callback);
+    }
 }
 
 /**
@@ -88,7 +86,7 @@ function renderNode(rootNode) {
     var visitedNodes = new Set();
     var customElements = exports.customElements;
 
-    return transformTree(document, visitedNodes, rootNode, function render (element) {
+    transformTree(document, visitedNodes, rootNode, function render (element) {
 
         const definition = customElements.getDefinition(element.localName);
 
@@ -99,13 +97,14 @@ function renderNode(rootNode) {
             upgradeElement(element, definition, true);
 
             if (definition.connectedCallback) {
-                return new Promise(function(resolve, reject) {
+                var p = new Promise(function(resolve, reject) {
                     resolve( definition.connectedCallback.call(element, document) );
                 });
+                createdPromises.push(p);
             }
         }
-    })
-        .then(() => rootNode);
+    });
+    return Promise.all(createdPromises).then(function(){ return rootNode; });
 }
 
 /**

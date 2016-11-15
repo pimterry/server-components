@@ -47,13 +47,19 @@ describe("When multiple DOM elements are present", () => {
             });
         });
 
-        // Pending until we decide on a good solution
-        xit("can read attributes from custom child element's prototypes", () => {
+        it("can read attributes from custom child element's prototypes", () => {
             class DataSource extends customElements.HTMLElement {
+              get data() {
+                return [10, 20, 30];
+              }
+            }
+            customElements.define("data-source", DataSource);
+
+            class DataDisplayer extends customElements.HTMLElement {
                 connectedCallback() {
                     return new Promise((resolve) => {
                         // Has to be async, as child node prototypes aren't set: http://stackoverflow.com/questions/36187227/
-                        // This is a web customElements limitation generally. TODO: Find a nicer pattern for handle this.
+                        // This is a web components limitation generally. TODO: Find a nicer pattern for handle this.
                         setTimeout(() => {
                             var data = this.childNodes[0].data;
                             this.textContent = "Data: " + JSON.stringify(data);
@@ -62,9 +68,8 @@ describe("When multiple DOM elements are present", () => {
                     });
                 }
             }
-            DataSource.data = [10, 20, 30];
 
-            customElements.define("data-displayer", DataSource);
+            customElements.define("data-displayer", DataDisplayer);
 
             return customElements.renderFragment(
                 "<data-displayer><data-source></data-source></data-displayer>"
