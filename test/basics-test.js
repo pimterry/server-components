@@ -1,39 +1,39 @@
 "use strict";
 var expect = require('chai').expect;
 
-var customElements = require("../src/index.js");
+var components = require("../src/index.js");
 
 describe("Basic component functionality", () => {
     it("does nothing with vanilla HTML", () => {
         var input = "<div></div>";
 
-        return customElements.renderFragment(input).then((output) => {
+        return components.renderFragment(input).then((output) => {
             expect(output).to.equal(input);
         });
     });
 
-    it("replaces customElements with their rendered result", () => {
-        class NewElement extends customElements.HTMLElement {
+    it("replaces components with their rendered result", () => {
+        class NewElement extends components.HTMLElement {
             connectedCallback() {
                 this.textContent = "hi there";
             }
         }
-        customElements.define("my-element", NewElement);
+        components.define("my-element", NewElement);
 
-        return customElements.renderFragment("<my-element></my-element>").then((output) => {
+        return components.renderFragment("<my-element></my-element>").then((output) => {
             expect(output).to.equal("<my-element>hi there</my-element>");
         });
     });
 
     it("can wrap existing content", () => {
-        class PrefixedElement extends customElements.HTMLElement {
+        class PrefixedElement extends components.HTMLElement {
             connectedCallback() {
                 this.innerHTML = "prefix:" + this.innerHTML;
             }
         }
-        customElements.define("prefixed-element", PrefixedElement);
+        components.define("prefixed-element", PrefixedElement);
 
-        return customElements.renderFragment(
+        return components.renderFragment(
             "<prefixed-element>existing-content</prefixed-element>"
         ).then((output) => expect(output).to.equal(
             "<prefixed-element>prefix:existing-content</prefixed-element>"
@@ -41,15 +41,15 @@ describe("Basic component functionality", () => {
     });
 
     it("allows attribute access", () => {
-        class BadgeElement extends customElements.HTMLElement {
+        class BadgeElement extends components.HTMLElement {
             connectedCallback() {
                 var name = this.getAttribute("name");
                 this.innerHTML = "My name is: <div class='name'>" + name + "</div>";
             }
         }
-        customElements.define("name-badge", BadgeElement);
+        components.define("name-badge", BadgeElement);
 
-        return customElements.renderFragment(
+        return components.renderFragment(
             '<name-badge name="Tim Perry"></name-badge>'
         ).then((output) => expect(output).to.equal(
             '<name-badge name="Tim Perry">My name is: <div class="name">Tim Perry</div></name-badge>'
@@ -57,16 +57,16 @@ describe("Basic component functionality", () => {
     });
 
     it("can use normal document methods like QuerySelector", () => {
-        class SelfFindingElement extends customElements.HTMLElement {
+        class SelfFindingElement extends components.HTMLElement {
             connectedCallback(document) {
                 var hopefullyThis = document.querySelector("self-finding-element");
                 if (hopefullyThis === this) this.innerHTML = "Found!";
                 else this.innerHTML = "Not found, found " + hopefullyThis;
             }
         }
-        customElements.define("self-finding-element", SelfFindingElement);
+        components.define("self-finding-element", SelfFindingElement);
 
-        return customElements.renderFragment(
+        return components.renderFragment(
             '<self-finding-element></self-finding-element>'
         ).then((output) => expect(output).to.equal(
             '<self-finding-element>Found!</self-finding-element>'
@@ -74,7 +74,7 @@ describe("Basic component functionality", () => {
     });
 
     it("wraps content in valid page content, if rendering a page", () => {
-        return customElements.renderPage("<empty-div></empty-div>").then((output) => {
+        return components.renderPage("<empty-div></empty-div>").then((output) => {
             expect(output).to.equal(
                 "<html><head></head><body><empty-div></empty-div></body></html>"
             );
@@ -82,7 +82,7 @@ describe("Basic component functionality", () => {
     });
 
     it("strips <html>, <head> and <body> tags, if only rendering a fragment", () => {
-        return customElements.renderFragment("<html><body><empty-div><head></head></empty-div></body></html>").then((output) => {
+        return components.renderFragment("<html><body><empty-div><head></head></empty-div></body></html>").then((output) => {
             expect(output).to.equal(
                 "<empty-div></empty-div>"
             );

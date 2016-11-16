@@ -24,10 +24,10 @@ You can take the same ideas (and standards), apply them directly server side, to
 #### Define a component
 
 ```javascript
-var customElements = require("server-components");
+var components = require("server-components");
 
 // Define a new class that extends a native HTML Element
-class NewElement extends customElements.HTMLElement {
+class NewElement extends components.HTMLElement {
     // When the element is created during DOM parsing, you can transform the HTML inside it.
     // This can be configurable too, either by setting attributes or adding HTML content
     // inside it or elsewhere in the page it can interact with. Elements can fire events
@@ -39,7 +39,7 @@ class NewElement extends customElements.HTMLElement {
 }
 
 // Register the element with an element name
-customElements.define("my-new-element", NewElement);
+components.define("my-new-element", NewElement);
 ```
 
 For examples of more complex component definitions, take a look at the [example components](https://github.com/pimterry/server-components/blob/master/component-examples.md)
@@ -47,13 +47,13 @@ For examples of more complex component definitions, take a look at the [example 
 #### Use your components
 
 ```javascript
-var customElements = require("server-components");
+var components = require("server-components");
 
 // Render the HTML, and receive a promise for the resulting HTML string.
 // The result is a promise because elements can render asynchronously, by returning
 // promises from their callbacks. This allows elements to render content from
 // external web services, your database, or anything else you can imagine.
-customElements.renderPage(`
+components.renderPage(`
     <html>
     <head></head>
     <body>
@@ -83,7 +83,7 @@ There aren't many published sharable components to drop in quite yet, as it's st
 
 ### Top-level API
 
-#### `customElements.HTMLElement`
+#### `components.HTMLElement`
 
 Creates a returns a new custom HTML element prototype, extending the HTMLElement prototype.
 
@@ -91,7 +91,7 @@ Note that this does *not* register the element. To do that, call `components.reg
 
 This is broadly equivalent to `Object.create(HTMLElement.prototype)` in browser land, and exactly equivalent here to `Object.create(components.dom.HTMLElement.prototype)`. You can call that yourself instead if you like, but it's a bit of a mouthful.
 
-#### `customElements.define(componentName, Constructor)`
+#### `components.define(componentName, Constructor)`
 
 Registers an element, so that it will be used when the given element name is found during parsing.
 
@@ -103,7 +103,7 @@ This returns the constructor for the new element, so you can construct and inser
 
 This is broadly equivalent to `document.registerElement` in browser land.
 
-#### `customElements.renderPage(html)`
+#### `components.renderPage(html)`
 
 Takes an HTML string for a full page, and returns a promise for the HTML string of the rendered result. Server Components parses the HTML, and for each registered element within calls its various callbacks (see the Component API) below as it does so.
 
@@ -111,7 +111,7 @@ Unrecognized elements are left unchanged. When calling custom element callbacks 
 
 To support the full DOM Document API, this method requires that you are rendering a full page (including `<html>`, `<head>` and `<body>` tags). If you don't pass in content wrapped in those tags then they'll be automatically added, ensuring your resulting HTML has a full valid page structure. If that's not what you want, take a look at `renderFragment` below.
 
-#### `customElements.renderFragment(html)`
+#### `components.renderFragment(html)`
 
 Takes an HTML string for part of a page, and returns a promise for the HTML string of the rendered result. Server Components parses the HTML, and for each registered element within calls its various callbacks (see the Component API) below as it does so.
 
@@ -119,9 +119,9 @@ Unrecognized elements are left unchanged. When calling custom element callbacks 
 
 This method renders the content as a [Document Fragment](https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment), a sub-part of a full document. This means if you there are any `<html>`, `<head>` or `<body>` tags in your input, they'll be stripped, as they're not legal within a fragment of a document. Note that this means the provided `document` object in your components will actually be a `DocumentFragment`, not a true `Document` object (although in most cases you can merrily ignore this). If you want to render a full page, take a look at `renderPage` above.
 
-#### `customElements.dom`
+#### `components.dom`
 
-The DOM object (customElements.dom) exposes traditional DOM objects (normally globally available in browsers) such as the CustomEvent and various HTMLElement classes, typically use inside your component implementations.
+The DOM object (components.dom) exposes traditional DOM objects (normally globally available in browsers) such as the CustomEvent and various HTMLElement classes, typically use inside your component implementations.
 
 This is (very) broadly equivalent to `window` in browser land.
 

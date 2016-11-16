@@ -33,6 +33,9 @@ exports.get = function (name) {
 exports.whenDefined = function (name) {
     return CustomElementRegistry.instance().whenDefined(name);
 };
+exports.reset = function (name) {
+    return CustomElementRegistry.instance().reset();
+};
 
 
 const _upgradedProp = '__$CE_upgraded';
