@@ -1,3 +1,4 @@
+"use strict";
 var expect = require('chai').expect;
 
 var components = require("../src/index.js");
@@ -12,9 +13,12 @@ describe("Basic component functionality", () => {
     });
 
     it("replaces components with their rendered result", () => {
-        var NewElement = components.newElement();
-        NewElement.createdCallback = function () { this.textContent = "hi there"; };
-        components.registerElement("my-element", { prototype: NewElement });
+        class NewElement extends components.HTMLElement {
+            connectedCallback() {
+                this.textContent = "hi there";
+            }
+        }
+        components.define("my-element", NewElement);
 
         return components.renderFragment("<my-element></my-element>").then((output) => {
             expect(output).to.equal("<my-element>hi there</my-element>");
@@ -22,13 +26,12 @@ describe("Basic component functionality", () => {
     });
 
     it("can wrap existing content", () => {
-        var PrefixedElement = components.newElement();
-        PrefixedElement.createdCallback = function () {
-            this.innerHTML = "prefix:" + this.innerHTML;
-        };
-        components.registerElement("prefixed-element", {
-            prototype: PrefixedElement
-        });
+        class PrefixedElement extends components.HTMLElement {
+            connectedCallback() {
+                this.innerHTML = "prefix:" + this.innerHTML;
+            }
+        }
+        components.define("prefixed-element", PrefixedElement);
 
         return components.renderFragment(
             "<prefixed-element>existing-content</prefixed-element>"
@@ -38,12 +41,13 @@ describe("Basic component functionality", () => {
     });
 
     it("allows attribute access", () => {
-        var BadgeElement = components.newElement();
-        BadgeElement.createdCallback = function () {
-            var name = this.getAttribute("name");
-            this.innerHTML = "My name is: <div class='name'>" + name + "</div>";
-        };
-        components.registerElement("name-badge", { prototype: BadgeElement });
+        class BadgeElement extends components.HTMLElement {
+            connectedCallback() {
+                var name = this.getAttribute("name");
+                this.innerHTML = "My name is: <div class='name'>" + name + "</div>";
+            }
+        }
+        components.define("name-badge", BadgeElement);
 
         return components.renderFragment(
             '<name-badge name="Tim Perry"></name-badge>'
@@ -53,13 +57,14 @@ describe("Basic component functionality", () => {
     });
 
     it("can use normal document methods like QuerySelector", () => {
-        var SelfFindingElement = components.newElement();
-        SelfFindingElement.createdCallback = function (document) {
-            var hopefullyThis = document.querySelector("self-finding-element");
-            if (hopefullyThis === this) this.innerHTML = "Found!";
-            else this.innerHTML = "Not found, found " + hopefullyThis;
-        };
-        components.registerElement("self-finding-element", { prototype: SelfFindingElement });
+        class SelfFindingElement extends components.HTMLElement {
+            connectedCallback(document) {
+                var hopefullyThis = document.querySelector("self-finding-element");
+                if (hopefullyThis === this) this.innerHTML = "Found!";
+                else this.innerHTML = "Not found, found " + hopefullyThis;
+            }
+        }
+        components.define("self-finding-element", SelfFindingElement);
 
         return components.renderFragment(
             '<self-finding-element></self-finding-element>'

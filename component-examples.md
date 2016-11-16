@@ -14,14 +14,14 @@ With the web component below, rendering `<my-greeting></my-greeting>` will resul
 `<my-greeting>Hi there</my-greeting>`.
 
 ```javascript
-var components = require("server-components");
+var customElements = require("server-components");
 
-var StaticElement = components.newElement();
-StaticElement.createdCallback = function () {
-    this.innerHTML = "Hi there";
-};
-
-components.registerElement("my-greeting", { prototype: StaticElement });
+class StaticElement extends customElements.HTMLElement {
+    connectedCallback() {
+        this.innerHTML = "Hi there"
+    }
+}
+customElements.define("my-greeting", StaticElement);
 ```
 
 This is very basic, and toy cases like this aren't immediately useful, but this can be helpful for standard
@@ -40,17 +40,17 @@ example is below: a visitor counter. All the rage in the 90s, with web component
 comeback!
 
 ```javascript
-var components = require("server-components");
+var customElements = require("server-components");
 
-var CounterElement = components.newElement();
 var currentCount = 0;
 
-CounterElement.createdCallback = function () {
-    currentCount += 1;
-    this.innerHTML = "There have been " + currentCount + " visitors.";
-};
-
-components.registerElement("visitor-counter", { prototype: CounterElement });
+class CounterElement extends customElements.HTMLElement {
+    connectedCallback() {
+        currentCount += 1;
+        this.innerHTML = "There have been " + currentCount + " visitors.";
+    }
+}
+customElements.define("visitor-counter", CounterElement);
 ```
 
 After a few visitors, this will render `<visitor-counter></visitor-counter>` into something like
@@ -81,17 +81,16 @@ Components can be parameterized in all sorts of ways. One interesting pattern is
 For example, you might want a component that wraps HTML, parses all the text within, and replaces URL strings with actual links (using the excellent [Linkify library](https://github.com/SoapBox/linkifyjs), but here in a server side DOM, not a real one):
 
 ```javascript
-var components = require("server-components");
+var customElements = require("server-components");
 var linkify = require("linkifyjs/element");
 
-var LinkifyElement = components.newElement();
-
-LinkifyElement.createdCallback = function (document) {
-    // Delegate the whole thing to a real normal front-end library!
-    linkify(this, { target: () => null, linkClass: "autolinked" }, document);
- };
-
-components.registerElement("linkify-urls", { prototype: LinkifyElement });
+class LinkifyElement extends customElements.HTMLElement {
+    connectedCallback() {
+        // Delegate the whole thing to a real front-end library!
+        linkify(this, { target: () => null, linkClass: "autolinked" }, document);
+    }
+}
+customElements.define("linkify-urls", LinkifyElement);
 ```
 
 With this, we can pass HTML into Server Components that looks like

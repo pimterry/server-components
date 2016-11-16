@@ -1,47 +1,42 @@
+"use strict";
 var expect = require('chai').expect;
 
 var components = require("../src/index.js");
 
 describe("Custom element validation", () => {
-    it("allows elements without options", () => {
-        components.registerElement("my-element");
-
-        return components.renderFragment("<my-element></my-element");
-    });
-
     it("requires a non-empty name", () => {
-        var InvalidElement = components.newElement();
+        class InvalidElement {}
         expect(() => {
-            components.registerElement("", { prototype: InvalidElement });
+            components.define("", InvalidElement);
         }).to.throw(
-            /Registration failed for ''. Missing element name./
+            /The element name '' is not valid./
         );
     });
 
     it("requires a hyphen in the element name", () => {
-        var InvalidElement = components.newElement();
+        class InvalidElement {}
         expect(() => {
-            components.registerElement("invalidname", { prototype: InvalidElement });
+            components.define("invalidname", InvalidElement);
         }).to.throw(
-            /Registration failed for 'invalidname'. Custom element names must contain a hyphen./
+            /The element name 'invalidname' is not valid./
         );
     });
 
     it("doesn't allow elements to start with a hyphen", () => {
-        var InvalidElement = components.newElement();
+        class InvalidElement {}
         expect(() => {
-            components.registerElement("-invalid-name", { prototype: InvalidElement });
+            components.define("-invalid-name", InvalidElement);
         }).to.throw(
-            /Registration failed for '-invalid-name'. Custom element names must not start with a hyphen./
+            /The element name '-invalid-name' is not valid./
         );
     });
 
     it("requires element names to be lower case", () => {
-        var InvalidElement = components.newElement();
+        class InvalidElement {}
         expect(() => {
-            components.registerElement("INVALID-NAME", { prototype: InvalidElement });
+            components.define("INVALID-NAME", InvalidElement);
         }).to.throw(
-            /Registration failed for 'INVALID-NAME'. Custom element names must not contain uppercase ASCII characters./
+            /The element name 'INVALID-NAME' is not valid./
         );
     });
 });

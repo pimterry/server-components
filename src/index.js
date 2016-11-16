@@ -1,7 +1,6 @@
 "use strict";
 
 var domino = require("domino");
-var validateElementName = require("validate-element-name");
 
 /**
  * The DOM object (components.dom) exposes tradition DOM objects (normally globally available
@@ -17,41 +16,39 @@ exports.dom = domino.impl;
  * with an element name, and options (typically including the prototype returned here as your
  * 'prototype' value).
  */
-exports.newElement = function newElement() {
-    return Object.create(domino.impl.HTMLElement.prototype);
-};
+var CustomElementRegistry = require('./registry');
+exports.customElements = CustomElementRegistry.instance();
+exports.HTMLElement = CustomElementRegistry.HTMLElement;
 
-var registeredElements = {};
 
 /**
- * Registers an element, so that it will be used when the given element name is found during parsing.
- *
- * Element names are required to contain a hyphen (to disambiguate them from existing element names),
- * be entirely lower-case, and not start with a hyphen.
- *
- * The only option currently supported is 'prototype', which sets the prototype of the given element.
- * This prototype will have its various callbacks called when it is found during document parsing,
- * and properties of the prototype will be exposed within the DOM to other elements there in turn.
+ * Re-export methods for convenience
  */
-exports.registerElement = function registerElement(name, options) {
-    var nameValidationResult = validateElementName(name);
-    if (!nameValidationResult.isValid) {
-        throw new Error(`Registration failed for '${name}'. ${nameValidationResult.message}`);
-    }
-
-    if (options && options.prototype) {
-        registeredElements[name] = options.prototype;
-    } else {
-        registeredElements[name] = exports.newElement();
-    }
-
-    return registeredElements[name].constructor;
+exports.define = function (name, constructor, options) {
+    return CustomElementRegistry.instance().define(name, constructor, options);
+};
+exports.get = function (name) {
+    return CustomElementRegistry.instance().get(name);
+};
+exports.whenDefined = function (name) {
+    return CustomElementRegistry.instance().whenDefined(name);
+};
+exports.reset = function (name) {
+    return CustomElementRegistry.instance().reset();
 };
 
-function recurseTree(rootNode, callback) {
-    for (let node of rootNode.childNodes) {
-        callback(node);
-        recurseTree(node, callback);
+
+const _upgradedProp = '__$CE_upgraded';
+
+
+function transformTree(document, visitedNodes, currentNode, callback) {
+
+    var task = visitedNodes.has(currentNode) ? undefined : callback(currentNode);
+
+    visitedNodes.add(currentNode);
+
+    for (var child of currentNode.childNodes) {
+        transformTree(document, visitedNodes, child, callback);
     }
 }
 
@@ -89,24 +86,28 @@ function renderNode(rootNode) {
     let createdPromises = [];
 
     var document = getDocument(rootNode);
+    var visitedNodes = new Set();
+    var customElements = exports.customElements;
 
-    recurseTree(rootNode, (foundNode) => {
-        if (foundNode.tagName) {
-            let nodeType = foundNode.tagName.toLowerCase();
-            let customElement = registeredElements[nodeType];
-            if (customElement) {
-                // TODO: Should probably clone node, not change prototype, for performance
-                Object.setPrototypeOf(foundNode, customElement);
-                if (customElement.createdCallback) {
-                    createdPromises.push(new Promise((resolve) => {
-                        resolve(customElement.createdCallback.call(foundNode, document));
-                    }));
-                }
+    transformTree(document, visitedNodes, rootNode, function render (element) {
+
+        const definition = customElements.getDefinition(element.localName);
+
+        if (definition) {
+            if ( element[_upgradedProp] ) {
+                return;
+            }
+            upgradeElement(element, definition, true);
+
+            if (definition.connectedCallback) {
+                var p = new Promise(function(resolve, reject) {
+                    resolve( definition.connectedCallback.call(element, document) );
+                });
+                createdPromises.push(p);
             }
         }
     });
-
-    return Promise.all(createdPromises).then(() => rootNode);
+    return Promise.all(createdPromises).then(function(){ return rootNode; });
 }
 
 /**
@@ -153,4 +154,36 @@ function getDocument(rootNode) {
 
         return rootNode;
     }
+}
+
+function upgradeElement (element, definition, callConstructor) {
+    const prototype = definition.constructor.prototype;
+    Object.setPrototypeOf(element, prototype);
+    if (callConstructor) {
+        CustomElementRegistry.instance()._setNewInstance(element);
+        new (definition.constructor)();
+        element[_upgradedProp] = true;
+    }
+
+    const observedAttributes = definition.observedAttributes;
+    const attributeChangedCallback = definition.attributeChangedCallback;
+    if (attributeChangedCallback && observedAttributes.length > 0) {
+
+        // Trigger attributeChangedCallback for existing attributes.
+        // https://html.spec.whatwg.org/multipage/scripting.html#upgrades
+        for (let i = 0; i < observedAttributes.length; i++) {
+            const name = observedAttributes[i];
+            if (element.hasAttribute(name)) {
+                const value = element.getAttribute(name);
+                attributeChangedCallback.call(element, name, null, value, null);
+            }
+        }
+    }
+  }
+
+//
+// Helpers
+//
+function map (arrayLike, fn) {
+    return Array.prototype.slice.call(arrayLike).map(fn);
 }

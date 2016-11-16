@@ -1,17 +1,21 @@
+"use strict";
 var expect = require('chai').expect;
 
 var components = require("../src/index.js");
 
 describe("When multiple DOM elements are present", () => {
+    beforeEach(() => {
+        components.reset();
+    });
+
     describe("nested elements", () => {
         it("are rendered correctly", () => {
-            var PrefixedElement = components.newElement();
-            PrefixedElement.createdCallback = function () {
-                this.innerHTML = "prefix:" + this.innerHTML;
-            };
-            components.registerElement("prefixed-element", {
-                prototype: PrefixedElement
-            });
+            class PrefixedElement extends components.HTMLElement {
+                connectedCallback() {
+                    this.innerHTML = "prefix:" + this.innerHTML;
+                }
+            }
+            components.define("prefixed-element", PrefixedElement);
 
             return components.renderFragment(
                 "<prefixed-element><prefixed-element>existing-content</prefixed-element></prefixed-element>"
@@ -25,13 +29,14 @@ describe("When multiple DOM elements are present", () => {
 
     describe("parent elements", () => {
         it("can see child elements", () => {
-            var ChildCountElement = components.newElement();
-            ChildCountElement.createdCallback = function () {
-                var newNode = this.doc.createElement("div");
-                newNode.textContent = this.childNodes.length + " children";
-                this.insertBefore(newNode, this.firstChild);
-            };
-            components.registerElement("child-count", { prototype: ChildCountElement });
+            class ChildCountElement extends components.HTMLElement {
+                connectedCallback() {
+                    var newNode = this.doc.createElement("div");
+                    newNode.textContent = this.childNodes.length + " children";
+                    this.insertBefore(newNode, this.firstChild);
+                }
+            }
+            components.define("child-count", ChildCountElement);
 
             return components.renderFragment(
                 "<child-count><div>A child</div><div>Another child</div></child-count>"
@@ -43,52 +48,59 @@ describe("When multiple DOM elements are present", () => {
         });
 
         it("can read attributes from custom child element's prototypes", () => {
-            var DataSource = components.newElement();
-            DataSource.data = [1, 2, 3];
-            components.registerElement("data-source", { prototype: DataSource });
+            class DataSource extends components.HTMLElement {
+              get data() {
+                return [10, 20, 30];
+              }
+            }
+            components.define("data-source", DataSource);
 
-            var DataDisplayer = components.newElement();
-            DataDisplayer.createdCallback = function () {
-                return new Promise((resolve) => {
-                    // Has to be async, as child node prototypes aren't set: http://stackoverflow.com/questions/36187227/
-                    // This is a web components limitation generally. TODO: Find a nicer pattern for handle this.
-                    setTimeout(() => {
-                        var data = this.childNodes[0].data;
-                        this.textContent = "Data: " + JSON.stringify(data);
-                        resolve();
-                    }, 0);
-                });
-            };
-            components.registerElement("data-displayer", { prototype: DataDisplayer });
+            class DataDisplayer extends components.HTMLElement {
+                connectedCallback() {
+                    return new Promise((resolve) => {
+                        // Has to be async, as child node prototypes aren't set: http://stackoverflow.com/questions/36187227/
+                        // This is a web components limitation generally. TODO: Find a nicer pattern for handle this.
+                        setTimeout(() => {
+                            var data = this.childNodes[0].data;
+                            this.textContent = "Data: " + JSON.stringify(data);
+                            resolve();
+                        }, 0);
+                    });
+                }
+            }
+
+            components.define("data-displayer", DataDisplayer);
 
             return components.renderFragment(
                 "<data-displayer><data-source></data-source></data-displayer>"
             ).then((output) => {
                 expect(output).to.equal(
-                    "<data-displayer>Data: [1,2,3]</data-displayer>"
+                    "<data-displayer>Data: [10,20,30]</data-displayer>"
                 );
             });
         });
 
         it("receive bubbling events from child elements", () => {
-            var EventRecorder = components.newElement();
-            EventRecorder.createdCallback = function (document) {
-                var resultsNode = document.createElement("p");
-                this.appendChild(resultsNode);
+            class EventRecorder extends components.HTMLElement {
+                connectedCallback(document) {
+                    var resultsNode = document.createElement("p");
+                    this.appendChild(resultsNode);
 
-                this.addEventListener("my-event", (event) => {
-                    resultsNode.innerHTML = "Event received";
-                });
-            };
-            components.registerElement("event-recorder", { prototype: EventRecorder });
+                    this.addEventListener("my-event", (event) => {
+                        resultsNode.innerHTML = "Event received";
+                    });
+                }
+            }
+            components.define("event-recorder", EventRecorder);
 
-            var EventElement = components.newElement();
-            EventElement.createdCallback = function () {
-                this.dispatchEvent(new components.dom.CustomEvent('my-event', {
-                    bubbles: true
-                }));
-            };
-            components.registerElement("event-source", { prototype: EventElement });
+            class EventElement extends components.HTMLElement {
+                connectedCallback() {
+                    this.dispatchEvent(new components.dom.CustomEvent('my-event', {
+                        bubbles: true
+                    }));
+                }
+            }
+            components.define("event-source", EventElement);
 
             return components.renderFragment(
                 "<event-recorder><event-source></event-source></event-recorder>"
